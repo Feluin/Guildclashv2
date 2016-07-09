@@ -2,13 +2,11 @@ package Guildclash;
 
 
 import java.io.File;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
