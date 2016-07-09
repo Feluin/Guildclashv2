@@ -3,8 +3,6 @@ package Guildclash;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.bukkit.Bukkit;
-import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 
 public class Guildmanager {
