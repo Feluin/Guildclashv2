@@ -12,6 +12,7 @@ public class Guild {
 	private ArrayList<String> enemies = new ArrayList<String>();
 	private UUID owner;
 	private String name;
+	
 
 	public Guild(String name, Player p) {
 		this.name = name;
