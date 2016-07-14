@@ -2,4 +2,6 @@ name: Guildclash
 main: Guildclash.Guildplugin
 version: 1.0.0
 commands: 
- guild:
+  guild:
+  warp:
+  welten:

@@ -1,5 +1,7 @@
 package Guildclash;
 
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -49,6 +51,23 @@ public class Guildplugin extends JavaPlugin {
 					}
 				} else {
 					p.sendMessage("/guild command [param]");
+				}
+			}
+			if(command.getName().equalsIgnoreCase("warp")){
+				if (args.length > 0) {
+					for(World w:worlds){
+					if(w.getName().equalsIgnoreCase(args[0]))
+						player.teleport(w.getSpawnLocation());
+					}
+				}
+			}
+			System.out.println("1");
+			if(command.getName().equalsIgnoreCase("welten")){
+				
+					for(World w: Bukkit.getWorlds()){
+						System.out.println(w.getName());
+						player.sendMessage(w.getName());
+					
 				}
 			}
 		}
