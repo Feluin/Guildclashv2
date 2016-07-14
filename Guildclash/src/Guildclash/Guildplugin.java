@@ -44,7 +44,31 @@ public class Guildplugin extends JavaPlugin {
 						} else {
 							p.sendMessage("/guild create name");
 						}
-					} else {
+					}else if(args[0].equalsIgnoreCase("kick")){
+						if(guildmanager.hasaguildalready(p.getUniqueId())){
+							Guild g = guildmanager.getguildofplayer(p.getUniqueId());
+							if(g.getPermissionLevel(p.getUniqueId())==0){
+
+							}
+						}
+						else{
+							p.sendMessage("Du bist in keinem Bündnis");
+						}
+					}
+					else if(args[0].equalsIgnoreCase("delete")){
+						if(guildmanager.hasaguildalready(p.getUniqueId())){
+							Guild g = guildmanager.getguildofplayer(p.getUniqueId());
+							if(g.getPermissionLevel(p.getUniqueId())==0){
+								if(guildmanager.removeGuild(g)){
+									p.sendMessage("Das Bündnis wurde aufgelöst");
+								}
+							}
+						}
+						else{
+							p.sendMessage("Du bist in keinem Bündnis");
+						}
+					}
+					else {
 						p.sendMessage("/guild command [param]");
 					}
 				} else {

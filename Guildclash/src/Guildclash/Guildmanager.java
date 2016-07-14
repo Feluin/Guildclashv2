@@ -74,7 +74,7 @@ public class Guildmanager {
 		}
 		return false;
 	}
-	
+
 	public boolean hasaguildalready(UUID uuid) {
 		for (Guild g : guilds) {
 			if (g.getOwner().equals(uuid)) {
@@ -280,5 +280,30 @@ public class Guildmanager {
 		}
 		Guild ret = new Guild(name, owner, members, allies, naps, enemies);
 		return ret;
+	}
+
+	public Guild getguildofplayer(UUID uuid) {
+		for (Guild g : guilds) {
+			if (g.getOwner().equals(uuid)) {
+				return g;
+			}
+			for (UUID member: g.getMembers()) {
+				if (member.equals(uuid)) {
+					return g;
+				}
+			}
+		}
+		return null;
+	}
+
+	public boolean removeGuild(Guild g) {
+		File gf = new File(Guildplugin.guildfolder + "/" + g.getName());
+		if(gf.exists()){
+			if(gf.delete()){
+				guilds.remove(g);
+				return true;
+			}
+		}
+		return false;
 	}
 }

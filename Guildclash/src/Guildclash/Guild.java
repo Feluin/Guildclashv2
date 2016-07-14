@@ -52,4 +52,11 @@ public class Guild {
 		return enemies;
 	}
 
+	public int getPermissionLevel(UUID uuid) {
+		if(owner.compareTo(uuid)==0){
+			return 0;
+		}
+		return 100;
+	}
+
 }
