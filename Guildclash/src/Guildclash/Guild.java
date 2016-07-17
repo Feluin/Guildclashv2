@@ -3,6 +3,8 @@ package Guildclash;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public class Guild {
@@ -53,10 +55,49 @@ public class Guild {
 	}
 
 	public int getPermissionLevel(UUID uuid) {
-		if(owner.compareTo(uuid)==0){
+		if (owner.compareTo(uuid) == 0) {
 			return 0;
 		}
 		return 100;
+	}
+
+	public boolean hasPlayer(UUID uuid) {
+		for (UUID u : members) {
+			if (uuid.compareTo(u) == 0) {
+				return true;
+			}
+		}
+		if (uuid.compareTo(owner) == 0) {
+			return true;
+		}
+		return false;
+	}
+
+	public void removePlayer(UUID uuid) {
+		for (UUID u : members) {
+			if (uuid.compareTo(u) == 0) {
+				members.remove(u);
+			}
+		}
+	}
+
+	public void broadcastMessage(String msg) {
+		for (UUID u : members) {
+			OfflinePlayer op = Bukkit.getOfflinePlayer(u);
+			if (op != null) {
+				if (op.isOnline()) {
+					Player p = op.getPlayer();
+					p.sendMessage(msg);
+				}
+			}
+		}
+		OfflinePlayer op = Bukkit.getOfflinePlayer(owner);
+		if (op != null) {
+			if (op.isOnline()) {
+				Player p = op.getPlayer();
+				p.sendMessage(msg);
+			}
+		}
 	}
 
 }

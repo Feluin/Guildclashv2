@@ -77,11 +77,11 @@ public class Guildmanager {
 
 	public boolean hasaguildalready(UUID uuid) {
 		for (Guild g : guilds) {
-			if (g.getOwner().equals(uuid)) {
+			if (g.getOwner().compareTo(uuid)==0) {
 				return true;
 			}
 			for (UUID member: g.getMembers()) {
-				if (member.equals(uuid)) {
+				if (member.compareTo(uuid)==0) {
 					return true;
 				}
 			}
@@ -297,8 +297,11 @@ public class Guildmanager {
 	}
 
 	public boolean removeGuild(Guild g) {
-		File gf = new File(Guildplugin.guildfolder + "/" + g.getName());
+		File gf = new File(Guildplugin.guildfolder + "/" + g.getName()+"/");
 		if(gf.exists()){
+			for (File f : gf.listFiles()) {
+				f.delete();
+			}
 			if(gf.delete()){
 				guilds.remove(g);
 				return true;
