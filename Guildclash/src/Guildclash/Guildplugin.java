@@ -1,5 +1,7 @@
 package Guildclash;
 
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -58,18 +60,21 @@ public class Guildplugin extends JavaPlugin {
 										if (guildmanager.hasaguildalready(target.getUniqueId())) {
 											Guild g = guildmanager.getguildofplayer(p.getUniqueId());
 											if (g.hasPlayer(target.getUniqueId())) {
-												if (g.getPermissionLevel(p.getUniqueId()) == 0) {
+												if (g.getPermissionLevel(p.getUniqueId()) > g
+														.getPermissionLevel(target.getUniqueId())) {
 													if (target.isOnline()) {
 														Player other = (Player) target;
 														other.sendMessage("Du wurdest aus dem Bündnis geworfen");
 													}
 													g.removePlayer(target.getUniqueId());
-													p.sendMessage("Dieser Spieler wurde aus dem Bündnis entfernt");
 													g.broadcastMessage("");
 													g.broadcastMessage(ChatColor.GRAY + target.getName()
 															+ ChatColor.WHITE + " wurde aus dem Bündnis geworfen");
 													g.broadcastMessage("");
 													return true;
+												}
+												else{
+													p.sendMessage("Deine Rechte reichen dafür nicht aus");
 												}
 											} else {
 												p.sendMessage("Dieser Spieler ist nicht im gleichem Bündnis");
@@ -110,6 +115,30 @@ public class Guildplugin extends JavaPlugin {
 							} else {
 								p.sendMessage("Deine Berechtigung reicht dafür nicht aus");
 							}
+						} else {
+							p.sendMessage("Du bist in keinem Bündnis");
+						}
+					} else if (args[0].equalsIgnoreCase("info")) {
+						if (guildmanager.hasaguildalready(p.getUniqueId())) {
+							Guild g = guildmanager.getguildofplayer(p.getUniqueId());
+							p.sendMessage(ChatColor.AQUA + "-----------------------------------------------------");
+							p.sendMessage(ChatColor.GOLD + "Bündnis Name: " + g.getName());
+							p.sendMessage("");
+							p.sendMessage(ChatColor.GREEN + "                                -- Meister --");
+							OfflinePlayer opowner = Bukkit.getOfflinePlayer(g.getOwner());
+							p.sendMessage(ChatColor.DARK_BLUE + opowner.getName());
+							p.sendMessage(ChatColor.GREEN + "                               -- Mitglieder --");
+							String buffer[] = new String[g.getMembers().size() % 5];
+							for (int i = 0; i < g.getMembers().size(); i++) {
+								UUID u = g.getMembers().get(i);
+								System.out.println(u);
+								OfflinePlayer opmember = Bukkit.getOfflinePlayer(u);
+								System.out.println(opmember.getName());
+								buffer[i % 5] += opmember.getName() + " ";
+							}
+							p.sendMessage(buffer);
+							p.sendMessage(ChatColor.AQUA + "-----------------------------------------------------");
+							return true;
 						} else {
 							p.sendMessage("Du bist in keinem Bündnis");
 						}
