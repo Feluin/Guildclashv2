@@ -10,13 +10,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Guildplugin extends JavaPlugin {
 	private Guildmanager guildmanager;
 	public static String guildfolder;
+	public static String warpfolder;
+	private Warpmanager warpmanager;
 
 	@Override
 	public void onEnable() {
 		guildfolder = getDataFolder() + "/guilds";
+		warpfolder = getDataFolder() + "/warp";
 		// Erstelle Manager
 		guildmanager = new Guildmanager();
 		guildmanager.loadGuilds();
+		warpmanager = new Warpmanager();
+		warpmanager.loadWarps();
 	}
 
 	@Override
@@ -53,23 +58,29 @@ public class Guildplugin extends JavaPlugin {
 					p.sendMessage("/guild command [param]");
 				}
 			}
-			if(command.getName().equalsIgnoreCase("warp")){
-				if (args.length > 0) {
-					for(World w:worlds){
-					if(w.getName().equalsIgnoreCase(args[0]))
-						player.teleport(w.getSpawnLocation());
+			if (command.getName().equalsIgnoreCase("warp")) {
+				if (args.length == 0) {
+					System.out.println("noch nicht initalisiert");
+				}else if (args.length <= 1) {
+					if (args[0].equalsIgnoreCase("new")) {
+						if (args.length == 2) {
+							if (!args[1].equalsIgnoreCase("new")) {
+								warpmanager.createNewWarp(args[1], p.getLocation(), 0);
+							}
+						}
+					} else {
+						Warp w = warpmanager.getWarpByName(args[0]);
+						System.out.println(args[0]);
+						if (w != null) {
+							p.teleport(w.getLoc());
+						} else {
+							p.sendMessage("Warp wurde nicht gefunden!");
+						}
 					}
 				}
+
 			}
-			System.out.println("1");
-			if(command.getName().equalsIgnoreCase("welten")){
-				
-					for(World w: Bukkit.getWorlds()){
-						System.out.println(w.getName());
-						player.sendMessage(w.getName());
-					
-				}
-			}
+
 		}
 		return false;
 	}
