@@ -172,7 +172,7 @@ public class Guildmanager {
 			BufferedWriter os = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f.getAbsolutePath())));
 			for (Invitation in : g.getInvitations()) {
 				String s = "{";
-				s += in.getPlayer().toString() + ",";
+				s += in.getPlayer() + ",";
 				DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 				s += df.format(in.getDate());
 				s += "}";
