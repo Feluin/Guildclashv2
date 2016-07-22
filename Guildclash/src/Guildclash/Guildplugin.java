@@ -101,31 +101,27 @@ public class Guildplugin extends JavaPlugin {
 						if (args.length > 1) {
 							OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(args[1]);
 							if (target != null) {
-								if (target.getUniqueId().compareTo(p.getUniqueId()) == 0) {
+								if (target.getUniqueId().compareTo(p.getUniqueId()) != 0) {
 									if (guildmanager.hasaguildalready(p.getUniqueId())) {
-										if (guildmanager.hasaguildalready(target.getUniqueId())) {
+										if (!guildmanager.hasaguildalready(target.getUniqueId())) {
 											Guild g = guildmanager.getguildofplayer(p.getUniqueId());
-											if (!guildmanager.hasaguildalready(target.getUniqueId())) {
-												if (g.getPermissionLevel(p.getUniqueId()) == 0) {
-													if (target.isOnline()) {
-														Player other = (Player) target;
-														other.sendMessage("Du wurdest in das Bündnis " + g.getName()
-																+ " eingeladen");
-														other.sendMessage("Schreibe /guild join " + g.getName()
-																+ " um dem Bündnis beizutreten");
-													}
-													Date timeout = DateUtils.addDays(new Date(), 1);
-													Invitation in = new Invitation(target.getUniqueId(), timeout);
-													g.addInvitation(in);
-													return true;
-												} else {
-													p.sendMessage("Deine Rechte reichen dafür nicht aus");
+											if (g.getPermissionLevel(p.getUniqueId()) == 0) {
+												if (target.isOnline()) {
+													Player other = (Player) target;
+													other.sendMessage(
+															"Du wurdest in das Bündnis " + g.getName() + " eingeladen");
+													other.sendMessage("Schreibe /guild join " + g.getName()
+															+ " um dem Bündnis beizutreten");
 												}
+												Date timeout = DateUtils.addDays(new Date(), 1);
+												Invitation in = new Invitation(target.getUniqueId(), timeout);
+												g.addInvitation(in);
+												return true;
 											} else {
-												p.sendMessage("Dieser Spieler ist nicht im gleichem Bündnis");
+												p.sendMessage("Deine Rechte reichen dafür nicht aus");
 											}
 										} else {
-											p.sendMessage("Dieser Spieler ist in keinem Bündnis");
+											p.sendMessage("Dieser Spieler ist bereits in einem Bündnis");
 										}
 									} else {
 										p.sendMessage("Du bist in keinem Bündnis");
@@ -144,15 +140,13 @@ public class Guildplugin extends JavaPlugin {
 							String name = args[1];
 							if (!guildmanager.hasaguildalready(p.getUniqueId())) {
 								Guild g = guildmanager.getGuildByName(name);
-								if (g!=null) {
-									if(g.isInvited(p.getUniqueId())){
+								if (g != null) {
+									if (g.isInvited(p.getUniqueId())) {
 										g.addMember(p.getUniqueId());
-									}
-									else{
+									} else {
 										p.sendMessage("Du wurdest nicht in dieses Bündnis eingeladen");
 									}
-								}
-								else{
+								} else {
 									p.sendMessage("Dieses Bündnis existiert nicht");
 								}
 								return true;
