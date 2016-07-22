@@ -108,4 +108,24 @@ public class Guild {
 		}
 	}
 
+	public void addInvitation(Invitation in) {
+		ginvites.add(in);
+	}
+
+	public void removeInvitation(Invitation in) {
+		ginvites.remove(in);
+	}
+
+	public boolean isInvited(UUID uuid) {
+		for (Invitation in : ginvites) {
+			if (in.getPlayer().compareTo(uuid) == 0 && in.isExpired() == false) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void addMember(UUID uuid) {
+		members.add(uuid);
+	}
 }

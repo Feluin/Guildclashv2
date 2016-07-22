@@ -13,8 +13,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.craftbukkit.libs.jline.internal.InputStreamReader;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import Guildclash.Objects.Invitation;
 
@@ -25,6 +28,25 @@ public class Guildmanager {
 		// Erstelle Guild Ordner
 		File gf = new File(Guildplugin.guildfolder);
 		gf.mkdirs();
+		// Aktualisiere Guild Invites
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(JavaPlugin.getPlugin(Guildplugin.class),
+				new Runnable() {
+					public void run() {
+						for (Guild g : guilds) {
+							for (Invitation in : g.getInvitations()) {
+								if (in.isExpired()) {
+									OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(in.getPlayer());
+									if (target.isOnline()) {
+										Player other = (Player) target;
+										other.sendMessage(
+												"Deine Einladung in das Bündnis " + g.getName() + " ist abgelaufen");
+									}
+									g.removeInvitation(in);
+								}
+							}
+						}
+					}
+				}, 0, 20);
 	}
 
 	public void createNewGuild(String name, Player player) {
@@ -150,7 +172,7 @@ public class Guildmanager {
 			BufferedWriter os = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f.getAbsolutePath())));
 			for (Invitation in : g.getInvitations()) {
 				String s = "{";
-				s += in.getPlayer() + ",";
+				s += in.getPlayer().toString() + ",";
 				DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 				s += df.format(in.getDate());
 				s += "}";
