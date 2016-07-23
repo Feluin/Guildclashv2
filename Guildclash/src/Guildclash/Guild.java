@@ -7,11 +7,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import Guildclash.Objects.GuildMember;
 import Guildclash.Objects.Invitation;
 
 public class Guild {
 	private ArrayList<Invitation> ginvites = new ArrayList<Invitation>();
-	private ArrayList<UUID> members = new ArrayList<UUID>();
+	private ArrayList<GuildMember> members = new ArrayList<GuildMember>();
 	private ArrayList<String> allies = new ArrayList<String>();
 	private ArrayList<String> naps = new ArrayList<String>();
 	private ArrayList<String> enemies = new ArrayList<String>();
@@ -23,8 +24,8 @@ public class Guild {
 		this.owner = p.getUniqueId();
 	}
 
-	public Guild(String name, UUID owner, ArrayList<UUID> members, ArrayList<String> allies, ArrayList<String> naps,
-			ArrayList<String> enemies, ArrayList<Invitation> ginvites) {
+	public Guild(String name, UUID owner, ArrayList<GuildMember> members, ArrayList<String> allies,
+			ArrayList<String> naps, ArrayList<String> enemies, ArrayList<Invitation> ginvites) {
 		this.name = name;
 		this.owner = owner;
 		this.members = members;
@@ -42,7 +43,7 @@ public class Guild {
 		return owner;
 	}
 
-	public ArrayList<UUID> getMembers() {
+	public ArrayList<GuildMember> getMembers() {
 		return members;
 	}
 
@@ -66,32 +67,37 @@ public class Guild {
 		if (owner.compareTo(uuid) == 0) {
 			return 0;
 		}
-		return 100;
+		for (GuildMember gm : members) {
+			if (gm.getUUID().compareTo(uuid) == 0) {
+				return gm.getStatus();
+			}
+		}
+		return 1000;
 	}
 
 	public boolean hasPlayer(UUID uuid) {
-		for (UUID u : members) {
-			if (uuid.compareTo(u) == 0) {
-				return true;
-			}
-		}
 		if (uuid.compareTo(owner) == 0) {
 			return true;
+		}
+		for (GuildMember gm : members) {
+			if (gm.getUUID().compareTo(uuid) == 0) {
+				return true;
+			}
 		}
 		return false;
 	}
 
 	public void removePlayer(UUID uuid) {
-		for (UUID u : members) {
-			if (uuid.compareTo(u) == 0) {
-				members.remove(u);
+		for (GuildMember gm : members) {
+			if (uuid.compareTo(gm.getUUID()) == 0) {
+				members.remove(gm);
 			}
 		}
 	}
 
 	public void broadcastMessage(String msg) {
-		for (UUID u : members) {
-			OfflinePlayer op = Bukkit.getOfflinePlayer(u);
+		for (GuildMember u : members) {
+			OfflinePlayer op = Bukkit.getOfflinePlayer(u.getUUID());
 			if (op != null) {
 				if (op.isOnline()) {
 					Player p = op.getPlayer();
@@ -126,6 +132,14 @@ public class Guild {
 	}
 
 	public void addMember(UUID uuid) {
-		members.add(uuid);
+		members.add(new GuildMember(uuid, 100));
+	}
+
+	public void setStatus(UUID uuid, int status) {
+		for (GuildMember gm : members) {
+			if (gm.getUUID().compareTo(uuid) == 0) {
+				gm.setStatus(status);
+			}
+		}
 	}
 }
