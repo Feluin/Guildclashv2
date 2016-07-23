@@ -7,7 +7,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import Guildclash.Objects.Invitation;
+
 public class Guild {
+	private ArrayList<Invitation> ginvites = new ArrayList<Invitation>();
 	private ArrayList<UUID> members = new ArrayList<UUID>();
 	private ArrayList<String> allies = new ArrayList<String>();
 	private ArrayList<String> naps = new ArrayList<String>();
@@ -21,13 +24,14 @@ public class Guild {
 	}
 
 	public Guild(String name, UUID owner, ArrayList<UUID> members, ArrayList<String> allies, ArrayList<String> naps,
-			ArrayList<String> enemies) {
+			ArrayList<String> enemies, ArrayList<Invitation> ginvites) {
 		this.name = name;
 		this.owner = owner;
 		this.members = members;
 		this.allies = allies;
 		this.enemies = enemies;
 		this.naps = naps;
+		this.ginvites = ginvites;
 	}
 
 	public String getName() {
@@ -52,6 +56,10 @@ public class Guild {
 
 	public ArrayList<String> getEnemies() {
 		return enemies;
+	}
+
+	public ArrayList<Invitation> getInvitations() {
+		return ginvites;
 	}
 
 	public int getPermissionLevel(UUID uuid) {
@@ -100,4 +108,24 @@ public class Guild {
 		}
 	}
 
+	public void addInvitation(Invitation in) {
+		ginvites.add(in);
+	}
+
+	public void removeInvitation(Invitation in) {
+		ginvites.remove(in);
+	}
+
+	public boolean isInvited(UUID uuid) {
+		for (Invitation in : ginvites) {
+			if (in.getPlayer().compareTo(uuid) == 0 && in.isExpired() == false) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void addMember(UUID uuid) {
+		members.add(uuid);
+	}
 }
