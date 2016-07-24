@@ -118,7 +118,7 @@ public class Guildplugin extends JavaPlugin {
 														if (gm.getStatus() == 1) {
 															rang = "Offizier";
 														} else if (gm.getStatus() == 2) {
-															rang = "Bauer";
+															rang = "Bauarbeiter";
 														}
 														g.broadcastMessage("");
 														g.broadcastMessage(ChatColor.GRAY + target.getName()
@@ -168,7 +168,7 @@ public class Guildplugin extends JavaPlugin {
 															if (gm.getStatus() == 1) {
 																rang = "Offizier";
 															} else if (gm.getStatus() == 2) {
-																rang = "Bauer";
+																rang = "Bauarbeiter";
 															} else {
 																rang = "Mitglied";
 															}
@@ -357,7 +357,7 @@ public class Guildplugin extends JavaPlugin {
 								}
 							}
 							if (builder.size() > 0) {
-								p.sendMessage(ChatColor.GREEN + "                                 -- Bauer --");
+								p.sendMessage(ChatColor.GREEN + "                             -- Bauarbeiter --");
 								String line = "";
 								for (UUID u : builder) {
 									OfflinePlayer opbuilder = Bukkit.getOfflinePlayer(u);
