@@ -67,8 +67,7 @@ public class Guildplugin extends JavaPlugin {
 										if (guildmanager.hasaguildalready(target.getUniqueId())) {
 											Guild g = guildmanager.getguildofplayer(p.getUniqueId());
 											if (g.hasPlayer(target.getUniqueId())) {
-												if (g.getPermissionLevel(p.getUniqueId()) < g
-														.getPermissionLevel(target.getUniqueId())) {
+												if (g.getPermissionLevel(p.getUniqueId()) <= 1) {
 													if (target.isOnline()) {
 														Player other = (Player) target;
 														other.sendMessage(
@@ -94,6 +93,112 @@ public class Guildplugin extends JavaPlugin {
 									}
 								} else {
 									p.sendMessage("Du kannst dich nicht selbst kicken");
+								}
+							} else {
+								p.sendMessage("Dieser Spieler existiert nicht");
+							}
+						} else {
+							p.sendMessage("/guild kick spieler");
+						}
+					} else if (args[0].equalsIgnoreCase("promote")) {
+						if (args.length > 1) {
+							OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(args[1]);
+							if (target != null) {
+								if (target.getUniqueId().compareTo(p.getUniqueId()) != 0) {
+									if (guildmanager.hasaguildalready(p.getUniqueId())) {
+										if (guildmanager.hasaguildalready(target.getUniqueId())) {
+											Guild g = guildmanager.getguildofplayer(p.getUniqueId());
+											if (g.hasPlayer(target.getUniqueId())) {
+												if (g.getPermissionLevel(p.getUniqueId()) <= 1) {
+													if (g.getPermissionLevel(p.getUniqueId()) < g
+															.getPermissionLevel(target.getUniqueId()) - 1) {
+														GuildMember gm = g.getMember(target.getUniqueId());
+														gm.setStatus(gm.getStatus() - 1);
+														String rang = "Error";
+														if (gm.getStatus() == 1) {
+															rang = "Offizier";
+														} else if (gm.getStatus() == 2) {
+															rang = "Bauer";
+														}
+														g.broadcastMessage("");
+														g.broadcastMessage(ChatColor.GRAY + target.getName()
+																+ ChatColor.AQUA + " wurde zum " + rang + " befördert");
+														g.broadcastMessage("");
+														return true;
+													} else {
+														p.sendMessage("Deine Rechte reichen dafür nicht aus");
+													}
+												} else {
+													p.sendMessage("Deine Rechte reichen dafür nicht aus");
+												}
+											} else {
+												p.sendMessage("Dieser Spieler ist nicht im gleichem Bündnis");
+											}
+										} else {
+											p.sendMessage("Dieser Spieler ist in keinem Bündnis");
+										}
+									} else {
+										p.sendMessage("Du bist in keinem Bündnis");
+									}
+								} else {
+									p.sendMessage("Du kannst dich nicht selbst befördern");
+								}
+							} else {
+								p.sendMessage("Dieser Spieler existiert nicht");
+							}
+						} else {
+							p.sendMessage("/guild kick spieler");
+						}
+					} else if (args[0].equalsIgnoreCase("demote")) {
+						if (args.length > 1) {
+							OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(args[1]);
+							if (target != null) {
+								if (target.getUniqueId().compareTo(p.getUniqueId()) != 0) {
+									if (guildmanager.hasaguildalready(p.getUniqueId())) {
+										if (guildmanager.hasaguildalready(target.getUniqueId())) {
+											Guild g = guildmanager.getguildofplayer(p.getUniqueId());
+											if (g.hasPlayer(target.getUniqueId())) {
+												if (g.getPermissionLevel(p.getUniqueId()) <= 1) {
+													if (g.getPermissionLevel(p.getUniqueId()) < g
+															.getPermissionLevel(target.getUniqueId())) {
+														GuildMember gm = g.getMember(target.getUniqueId());
+														if (gm.getStatus() < 3) {
+															gm.setStatus(gm.getStatus() + 1);
+															String rang = "Error";
+															if (gm.getStatus() == 1) {
+																rang = "Offizier";
+															} else if (gm.getStatus() == 2) {
+																rang = "Bauer";
+															} else {
+																rang = "Mitglied";
+															}
+															g.broadcastMessage("");
+															g.broadcastMessage(
+																	ChatColor.GRAY + target.getName() + ChatColor.AQUA
+																			+ " wurde zum " + rang + " degradiert");
+															g.broadcastMessage("");
+															return true;
+														} else {
+															p.sendMessage(
+																	"Dieser Spieler kann nicht weiter degradiert werden");
+														}
+													} else {
+														p.sendMessage("Deine Rechte reichen dafür nicht aus");
+													}
+												} else {
+													p.sendMessage("Deine Rechte reichen dafür nicht aus");
+												}
+											} else {
+												p.sendMessage("Dieser Spieler ist nicht im gleichem Bündnis");
+											}
+										} else {
+											p.sendMessage("Dieser Spieler ist in keinem Bündnis");
+										}
+									} else {
+										p.sendMessage("Du bist in keinem Bündnis");
+									}
+								} else {
+									p.sendMessage("Du kannst dich nicht selbst degradieren");
 								}
 							} else {
 								p.sendMessage("Dieser Spieler existiert nicht");
@@ -152,11 +257,13 @@ public class Guildplugin extends JavaPlugin {
 								Guild g = guildmanager.getGuildByName(name);
 								if (g != null) {
 									if (g.isInvited(p.getUniqueId())) {
-										g.acceptInvitation(p.getUniqueId());
 										g.broadcastMessage("");
 										g.broadcastMessage(ChatColor.GRAY + p.getName() + ChatColor.AQUA
 												+ " ist dem Bündnis beigetreten");
 										g.broadcastMessage("");
+										g.acceptInvitation(p.getUniqueId());
+										p.sendMessage("Du bist dem Bündnis " + g.getName() + " beigetreten");
+										return true;
 									} else {
 										p.sendMessage("Du wurdest nicht in dieses Bündnis eingeladen");
 									}
@@ -190,6 +297,23 @@ public class Guildplugin extends JavaPlugin {
 								}
 							} else {
 								p.sendMessage("Deine Berechtigung reicht dafür nicht aus");
+							}
+						} else {
+							p.sendMessage("Du bist in keinem Bündnis");
+						}
+					} else if (args[0].equalsIgnoreCase("leave")) {
+						if (guildmanager.hasaguildalready(p.getUniqueId())) {
+							Guild g = guildmanager.getguildofplayer(p.getUniqueId());
+							if (g.getOwner().compareTo(p.getUniqueId()) != 0) {
+								g.removePlayer(p.getUniqueId());
+								g.broadcastMessage("");
+								g.broadcastMessage(
+										ChatColor.GRAY + p.getName() + ChatColor.AQUA + " hat das Bündnis verlassen");
+								g.broadcastMessage("");
+								p.sendMessage("Du hast das Bündnis " + g.getName() + " verlassen");
+								return true;
+							} else {
+								p.sendMessage("Du kannst dein Bündnis nicht verlassen");
 							}
 						} else {
 							p.sendMessage("Du bist in keinem Bündnis");
@@ -249,7 +373,7 @@ public class Guildplugin extends JavaPlugin {
 								}
 							}
 							if (member.size() > 0) {
-								p.sendMessage(ChatColor.GREEN + "                               -- Mitglieder --");
+								p.sendMessage(ChatColor.GREEN + "                              -- Mitglieder --");
 								String line = "";
 								for (UUID u : member) {
 									OfflinePlayer opmember = Bukkit.getOfflinePlayer(u);
@@ -277,7 +401,7 @@ public class Guildplugin extends JavaPlugin {
 				}
 			}
 		} else {
-			sender.sendMessage("Du musst ein Spieler sein um diesen Befehl zu nutzen");
+			sender.sendMessage("Du musst ein Spieler sein um diesen Befehl benutzen zu können");
 		}
 		return false;
 	}

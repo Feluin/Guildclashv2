@@ -133,7 +133,7 @@ public class Guild {
 	}
 
 	public void addMember(UUID uuid) {
-		members.add(new GuildMember(uuid, 100));
+		members.add(new GuildMember(uuid, 3));
 	}
 
 	public void setStatus(UUID uuid, int status) {
@@ -152,5 +152,14 @@ public class Guild {
 			}
 		}
 		addMember(uuid);
+	}
+
+	public GuildMember getMember(UUID uuid) {
+		for (GuildMember gm : members) {
+			if(gm.getUUID().compareTo(uuid)==0){
+				return gm;
+			}
+		}
+		return null;
 	}
 }
