@@ -46,7 +46,8 @@ public class Guildplugin extends JavaPlugin {
 							if (!guildmanager.hasaguildalready(p.getUniqueId())) {
 								if (!guildmanager.existsalready(guildname)) {
 									guildmanager.createNewGuild(guildname, p);
-									p.sendMessage("Das Bündnis " + guildname + " wurde erstellt");
+									p.sendMessage(ChatColor.AQUA + "Das Bündnis " + ChatColor.GRAY + guildname
+											+ ChatColor.AQUA + " wurde erstellt");
 									return true;
 								} else {
 									p.sendMessage("Dieser Name ist bereits vergeben");
@@ -61,21 +62,22 @@ public class Guildplugin extends JavaPlugin {
 						if (args.length > 1) {
 							OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(args[1]);
 							if (target != null) {
-								if (target.getUniqueId().compareTo(p.getUniqueId()) == 0) {
+								if (target.getUniqueId().compareTo(p.getUniqueId()) != 0) {
 									if (guildmanager.hasaguildalready(p.getUniqueId())) {
 										if (guildmanager.hasaguildalready(target.getUniqueId())) {
 											Guild g = guildmanager.getguildofplayer(p.getUniqueId());
 											if (g.hasPlayer(target.getUniqueId())) {
-												if (g.getPermissionLevel(p.getUniqueId()) > g
+												if (g.getPermissionLevel(p.getUniqueId()) < g
 														.getPermissionLevel(target.getUniqueId())) {
 													if (target.isOnline()) {
 														Player other = (Player) target;
-														other.sendMessage("Du wurdest aus dem Bündnis geworfen");
+														other.sendMessage(
+																ChatColor.RED + "Du wurdest aus dem Bündnis geworfen");
 													}
 													g.removePlayer(target.getUniqueId());
 													g.broadcastMessage("");
-													g.broadcastMessage(ChatColor.GRAY + target.getName()
-															+ ChatColor.WHITE + " wurde aus dem Bündnis geworfen");
+													g.broadcastMessage(ChatColor.GRAY + target.getName() + ChatColor.RED
+															+ " wurde aus dem Bündnis geworfen");
 													g.broadcastMessage("");
 													return true;
 												} else {
@@ -107,18 +109,24 @@ public class Guildplugin extends JavaPlugin {
 									if (guildmanager.hasaguildalready(p.getUniqueId())) {
 										if (!guildmanager.hasaguildalready(target.getUniqueId())) {
 											Guild g = guildmanager.getguildofplayer(p.getUniqueId());
-											if (g.getPermissionLevel(p.getUniqueId()) == 0) {
-												if (target.isOnline()) {
-													Player other = (Player) target;
-													other.sendMessage(
-															"Du wurdest in das Bündnis " + g.getName() + " eingeladen");
-													other.sendMessage("Schreibe /guild join " + g.getName()
-															+ " um dem Bündnis beizutreten");
+											if (g.getPermissionLevel(p.getUniqueId()) <= 1) {
+												if (!g.isInvited(target.getUniqueId())) {
+													if (target.isOnline()) {
+														Player other = (Player) target;
+														other.sendMessage(ChatColor.AQUA + "Du wurdest in das Bündnis "
+																+ g.getName() + " eingeladen");
+														other.sendMessage(ChatColor.AQUA + "Schreibe /guild join "
+																+ g.getName() + " um dem Bündnis beizutreten");
+													}
+													p.sendMessage(ChatColor.GRAY + target.getName() + ChatColor.AQUA
+															+ " wurde in das Bündnis eingeladen");
+													Date timeout = DateUtils.addDays(new Date(), 1);
+													Invitation in = new Invitation(target.getUniqueId(), timeout);
+													g.addInvitation(in);
+													return true;
+												} else {
+													p.sendMessage("Dieser Spieler ist bereits eingeladen");
 												}
-												Date timeout = DateUtils.addDays(new Date(), 1);
-												Invitation in = new Invitation(target.getUniqueId(), timeout);
-												g.addInvitation(in);
-												return true;
 											} else {
 												p.sendMessage("Deine Rechte reichen dafür nicht aus");
 											}
@@ -144,7 +152,11 @@ public class Guildplugin extends JavaPlugin {
 								Guild g = guildmanager.getGuildByName(name);
 								if (g != null) {
 									if (g.isInvited(p.getUniqueId())) {
-										g.addMember(p.getUniqueId());
+										g.acceptInvitation(p.getUniqueId());
+										g.broadcastMessage("");
+										g.broadcastMessage(ChatColor.GRAY + p.getName() + ChatColor.AQUA
+												+ " ist dem Bündnis beigetreten");
+										g.broadcastMessage("");
 									} else {
 										p.sendMessage("Du wurdest nicht in dieses Bündnis eingeladen");
 									}
@@ -164,7 +176,7 @@ public class Guildplugin extends JavaPlugin {
 							if (g.getPermissionLevel(p.getUniqueId()) == 0) {
 								if (guildmanager.removeGuild(g)) {
 									g.broadcastMessage("");
-									g.broadcastMessage(ChatColor.RED + "Das Bündnis wurde aufgelöst");
+									g.broadcastMessage(ChatColor.DARK_RED + "Das Bündnis wurde aufgelöst");
 									g.broadcastMessage("");
 									return true;
 								} else {
@@ -209,8 +221,8 @@ public class Guildplugin extends JavaPlugin {
 								String line = "";
 								for (UUID u : officer) {
 									OfflinePlayer opofficer = Bukkit.getOfflinePlayer(u);
-									if (opofficer.getName().length() <= 52 - line.length()) {
-										line += opofficer.getName();
+									if (opofficer.getName().length() <= (52 - line.length())) {
+										line += opofficer.getName() + " ";
 									} else {
 										p.sendMessage(line);
 										line = "";
@@ -226,7 +238,7 @@ public class Guildplugin extends JavaPlugin {
 								for (UUID u : builder) {
 									OfflinePlayer opbuilder = Bukkit.getOfflinePlayer(u);
 									if (opbuilder.getName().length() <= 52 - line.length()) {
-										line += opbuilder.getName();
+										line += opbuilder.getName() + " ";
 									} else {
 										p.sendMessage(line);
 										line = "";
@@ -242,7 +254,7 @@ public class Guildplugin extends JavaPlugin {
 								for (UUID u : member) {
 									OfflinePlayer opmember = Bukkit.getOfflinePlayer(u);
 									if (opmember.getName().length() <= 52 - line.length()) {
-										line += opmember.getName();
+										line += opmember.getName() + " ";
 									} else {
 										p.sendMessage(line);
 										line = "";
@@ -265,7 +277,7 @@ public class Guildplugin extends JavaPlugin {
 				}
 			}
 		} else {
-			sender.sendMessage("Du musst ein Spieler sein um das Kommando zu nutzen");
+			sender.sendMessage("Du musst ein Spieler sein um diesen Befehl zu nutzen");
 		}
 		return false;
 	}

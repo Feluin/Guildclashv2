@@ -88,9 +88,10 @@ public class Guild {
 	}
 
 	public void removePlayer(UUID uuid) {
-		for (GuildMember gm : members) {
+		for (int i = 0; i < members.size(); i++) {
+			GuildMember gm = members.get(i);
 			if (uuid.compareTo(gm.getUUID()) == 0) {
-				members.remove(gm);
+				members.remove(i);
 			}
 		}
 	}
@@ -118,8 +119,8 @@ public class Guild {
 		ginvites.add(in);
 	}
 
-	public void removeInvitation(Invitation in) {
-		ginvites.remove(in);
+	public void removeInvitation(int i) {
+		ginvites.remove(i);
 	}
 
 	public boolean isInvited(UUID uuid) {
@@ -141,5 +142,15 @@ public class Guild {
 				gm.setStatus(status);
 			}
 		}
+	}
+
+	public void acceptInvitation(UUID uuid) {
+		for (int i = 0; i < ginvites.size(); i++) {
+			Invitation in = ginvites.get(i);
+			if (in.getPlayer().compareTo(uuid) == 0) {
+				ginvites.remove(i);
+			}
+		}
+		addMember(uuid);
 	}
 }

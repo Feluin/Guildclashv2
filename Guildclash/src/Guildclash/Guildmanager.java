@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.craftbukkit.libs.jline.internal.InputStreamReader;
 import org.bukkit.entity.Player;
@@ -34,15 +35,16 @@ public class Guildmanager {
 				new Runnable() {
 					public void run() {
 						for (Guild g : guilds) {
-							for (Invitation in : g.getInvitations()) {
+							for (int i = 0; i < g.getInvitations().size(); i++) {
+								Invitation in = g.getInvitations().get(i);
 								if (in.isExpired()) {
 									OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(in.getPlayer());
 									if (target.isOnline()) {
 										Player other = (Player) target;
-										other.sendMessage(
-												"Deine Einladung in das Bündnis " + g.getName() + " ist abgelaufen");
+										other.sendMessage(ChatColor.AQUA + "Deine Einladung in das Bündnis "
+												+ g.getName() + " ist abgelaufen");
 									}
-									g.removeInvitation(in);
+									g.removeInvitation(i);
 								}
 							}
 						}
