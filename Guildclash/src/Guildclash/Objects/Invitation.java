@@ -13,7 +13,7 @@ public class Invitation {
 	}
 
 	public boolean isExpired() {
-		if (timeout.after(new Date())) {
+		if (timeout.before(new Date())) {
 			return true;
 		}
 		return false;

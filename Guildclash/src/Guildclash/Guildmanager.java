@@ -14,11 +14,13 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.craftbukkit.libs.jline.internal.InputStreamReader;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import Guildclash.Objects.GuildMember;
 import Guildclash.Objects.Invitation;
 
 public class Guildmanager {
@@ -33,15 +35,16 @@ public class Guildmanager {
 				new Runnable() {
 					public void run() {
 						for (Guild g : guilds) {
-							for (Invitation in : g.getInvitations()) {
+							for (int i = 0; i < g.getInvitations().size(); i++) {
+								Invitation in = g.getInvitations().get(i);
 								if (in.isExpired()) {
 									OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(in.getPlayer());
 									if (target.isOnline()) {
 										Player other = (Player) target;
-										other.sendMessage(
-												"Deine Einladung in das Bündnis " + g.getName() + " ist abgelaufen");
+										other.sendMessage(ChatColor.AQUA + "Deine Einladung in das Bündnis "
+												+ g.getName() + " ist abgelaufen");
 									}
-									g.removeInvitation(in);
+									g.removeInvitation(i);
 								}
 							}
 						}
@@ -107,8 +110,8 @@ public class Guildmanager {
 			if (g.getOwner().compareTo(uuid) == 0) {
 				return true;
 			}
-			for (UUID member : g.getMembers()) {
-				if (member.compareTo(uuid) == 0) {
+			for (GuildMember gm : g.getMembers()) {
+				if (gm.getUUID().compareTo(uuid) == 0) {
 					return true;
 				}
 			}
@@ -149,9 +152,11 @@ public class Guildmanager {
 		}
 		try {
 			BufferedWriter os = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f.getAbsolutePath())));
-			for (UUID member : g.getMembers()) {
-				String s = "";
-				s += member.toString() + "";
+			for (GuildMember gm : g.getMembers()) {
+				String s = "{";
+				s += gm.getUUID() + ",";
+				s += gm.getStatus();
+				s += "}";
 				os.write(s + "\n");
 			}
 			os.flush();
@@ -251,7 +256,7 @@ public class Guildmanager {
 	private Guild load(File file) {
 		String name = "";
 		UUID owner = null;
-		ArrayList<UUID> members;
+		ArrayList<GuildMember> members;
 		ArrayList<String> allies;
 		ArrayList<String> naps;
 		ArrayList<String> enemies;
@@ -276,10 +281,15 @@ public class Guildmanager {
 		try {
 			BufferedReader is = new BufferedReader(
 					new InputStreamReader(new FileInputStream(file.getAbsolutePath() + "/members.txt")));
-			ArrayList<UUID> result = new ArrayList<UUID>();
+			ArrayList<GuildMember> result = new ArrayList<GuildMember>();
 			while (is.ready()) {
-				String uuid = is.readLine();
-				result.add(UUID.fromString(uuid));
+				String param = is.readLine();
+				param = param.substring(1, param.length() - 1);
+				String[] parts = param.split(",");
+				if (parts.length > 1) {
+					UUID u = UUID.fromString(parts[0]);
+					result.add(new GuildMember(u, Integer.parseInt(parts[1])));
+				}
 			}
 			members = result;
 			is.close();
@@ -360,8 +370,8 @@ public class Guildmanager {
 			if (g.getOwner().equals(uuid)) {
 				return g;
 			}
-			for (UUID member : g.getMembers()) {
-				if (member.equals(uuid)) {
+			for (GuildMember gm : g.getMembers()) {
+				if (gm.getUUID().compareTo(uuid) == 0) {
 					return g;
 				}
 			}
