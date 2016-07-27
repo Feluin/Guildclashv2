@@ -338,18 +338,20 @@ public class Guildplugin extends JavaPlugin {
 							p.sendMessage(ChatColor.GOLD + "Bündnis Name: " + g.getName());
 							p.sendMessage("");
 							p.sendMessage(ChatColor.GREEN + "                                -- Meister --");
+							p.sendMessage("");
 							OfflinePlayer opowner = Bukkit.getOfflinePlayer(g.getOwner());
 							p.sendMessage(ChatColor.DARK_BLUE + opowner.getName());
 							if (officer.size() > 0) {
 								p.sendMessage(ChatColor.GREEN + "                               -- Offiziere --");
+								p.sendMessage("");
 								String line = "";
 								for (UUID u : officer) {
 									OfflinePlayer opofficer = Bukkit.getOfflinePlayer(u);
-									if (opofficer.getName().length() <= (52 - line.length())) {
+									if ((opofficer.getName().length() + 1) <= (53 - line.length())) {
 										line += opofficer.getName() + " ";
 									} else {
 										p.sendMessage(line);
-										line = "";
+										line = opofficer.getName() + " ";
 									}
 								}
 								if (line.length() > 0) {
@@ -358,14 +360,15 @@ public class Guildplugin extends JavaPlugin {
 							}
 							if (builder.size() > 0) {
 								p.sendMessage(ChatColor.GREEN + "                             -- Bauarbeiter --");
+								p.sendMessage("");
 								String line = "";
 								for (UUID u : builder) {
 									OfflinePlayer opbuilder = Bukkit.getOfflinePlayer(u);
-									if (opbuilder.getName().length() <= 52 - line.length()) {
+									if ((opbuilder.getName().length() + 1) <= (53 - line.length())) {
 										line += opbuilder.getName() + " ";
 									} else {
 										p.sendMessage(line);
-										line = "";
+										line = opbuilder.getName() + " ";
 									}
 								}
 								if (line.length() > 0) {
@@ -374,14 +377,15 @@ public class Guildplugin extends JavaPlugin {
 							}
 							if (member.size() > 0) {
 								p.sendMessage(ChatColor.GREEN + "                              -- Mitglieder --");
+								p.sendMessage("");
 								String line = "";
 								for (UUID u : member) {
 									OfflinePlayer opmember = Bukkit.getOfflinePlayer(u);
-									if (opmember.getName().length() <= 52 - line.length()) {
+									if ((opmember.getName().length() + 1) <= (53 - line.length())) {
 										line += opmember.getName() + " ";
 									} else {
 										p.sendMessage(line);
-										line = "";
+										line = opmember.getName() + " ";
 									}
 								}
 								if (line.length() > 0) {
