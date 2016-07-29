@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import Guildclash.Language.LanguageUtil;
 import Guildclash.Objects.GuildMember;
 import Guildclash.Objects.Invitation;
 
@@ -96,6 +98,129 @@ public class Guild {
 		}
 	}
 
+	public void broadcastSpecialMessage(int id, String s, int i) {
+		for (GuildMember u : members) {
+			OfflinePlayer op = Bukkit.getOfflinePlayer(u.getUUID());
+			if (op != null) {
+				if (op.isOnline()) {
+					Player p = op.getPlayer();
+					if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+						if (id == 0) {
+							p.sendMessage(ChatColor.GRAY + s + ChatColor.RED + " wurde aus dem Bündnis geworfen");
+						} else if (id == 1) {
+							String rang = "Error";
+							if (i == 1) {
+								rang = "Offizier";
+							} else if (i == 2) {
+								rang = "Bauarbeiter";
+							}
+							p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " wurde zum " + rang + " befördert");
+						} else if (id == 2) {
+							String rang = "Error";
+							if (i == 1) {
+								rang = "Offizier";
+							} else if (i == 2) {
+								rang = "Bauarbeiter";
+							}
+							p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " wurde zum " + rang + " degradiert");
+						} else if (id == 3) {
+							p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " ist dem Bündnis beigetreten");
+						} else if (id == 4) {
+							p.sendMessage(ChatColor.DARK_RED + "Das Bündnis wurde aufgelöst");
+						} else if (id == 5) {
+							p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " hat das Bündnis verlassen");
+						}
+					} else {
+						if (id == 0) {
+							p.sendMessage(ChatColor.GRAY + s + ChatColor.RED + " has been kicked from the guild");
+						} else if (id == 1) {
+							String rang = "Error";
+							if (i == 1) {
+								rang = "Officer";
+							} else if (i == 2) {
+								rang = "Builder";
+							}
+							p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " was promoted to " + rang);
+						} else if (id == 2) {
+							String rang = "Error";
+							if (i == 1) {
+								rang = "Officer";
+							} else if (i == 2) {
+								rang = "Builder";
+							}
+							p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " was demoted to " + rang);
+						} else if (id == 3) {
+							p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " joined the guild");
+						} else if (id == 4) {
+							p.sendMessage(ChatColor.DARK_RED + "The guild was disbanded");
+						} else if (id == 5) {
+							p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " left the guild");
+						}
+					}
+				}
+			}
+		}
+		OfflinePlayer op = Bukkit.getOfflinePlayer(owner);
+		if (op != null) {
+			if (op.isOnline()) {
+				Player p = op.getPlayer();
+				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+					if (id == 0) {
+						p.sendMessage(ChatColor.GRAY + s + ChatColor.RED + " wurde aus dem Bündnis geworfen");
+					} else if (id == 1) {
+						String rang = "Error";
+						if (i == 1) {
+							rang = "Offizier";
+						} else if (i == 2) {
+							rang = "Bauarbeiter";
+						}
+						p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " wurde zum " + rang + " befördert");
+					} else if (id == 2) {
+						String rang = "Error";
+						if (i == 1) {
+							rang = "Offizier";
+						} else if (i == 2) {
+							rang = "Bauarbeiter";
+						}
+						p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " wurde zum " + rang + " degradiert");
+					} else if (id == 3) {
+						p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " ist dem Bündnis beigetreten");
+					} else if (id == 4) {
+						p.sendMessage(ChatColor.DARK_RED + "Das Bündnis wurde aufgelöst");
+					} else if (id == 5) {
+						p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " hat das Bündnis verlassen");
+					}
+				} else {
+					if (id == 0) {
+						p.sendMessage(ChatColor.GRAY + s + ChatColor.RED + " has been kicked from the guild");
+					} else if (id == 1) {
+						String rang = "Error";
+						if (i == 1) {
+							rang = "Officer";
+						} else if (i == 2) {
+							rang = "Builder";
+						}
+						p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " was promoted to " + rang);
+					} else if (id == 2) {
+						String rang = "Error";
+						if (i == 1) {
+							rang = "Officer";
+						} else if (i == 2) {
+							rang = "Builder";
+						}
+						p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " was demoted to " + rang);
+					} else if (id == 3) {
+						p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " joined the guild");
+					} else if (id == 4) {
+						p.sendMessage(ChatColor.DARK_RED + "The guild was disbanded");
+					} else if (id == 5) {
+						p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " left the guild");
+					}
+				}
+			}
+		}
+	}
+
 	public void broadcastMessage(String msg) {
 		for (GuildMember u : members) {
 			OfflinePlayer op = Bukkit.getOfflinePlayer(u.getUUID());
@@ -156,7 +281,7 @@ public class Guild {
 
 	public GuildMember getMember(UUID uuid) {
 		for (GuildMember gm : members) {
-			if(gm.getUUID().compareTo(uuid)==0){
+			if (gm.getUUID().compareTo(uuid) == 0) {
 				return gm;
 			}
 		}
