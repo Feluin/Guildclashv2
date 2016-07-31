@@ -20,6 +20,7 @@ import org.bukkit.craftbukkit.libs.jline.internal.InputStreamReader;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import Guildclash.Language.LanguageUtil;
 import Guildclash.Objects.GuildMember;
 import Guildclash.Objects.Invitation;
 
@@ -28,7 +29,7 @@ public class Guildmanager {
 
 	public Guildmanager() {
 		// Erstelle Guild Ordner
-		File gf = new File(Guildplugin.guildfolder);
+		File gf = new File(Guildplugin.getGuildFolder());
 		gf.mkdirs();
 		// Aktualisiere Guild Invites
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(JavaPlugin.getPlugin(Guildplugin.class),
@@ -41,8 +42,15 @@ public class Guildmanager {
 									OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(in.getPlayer());
 									if (target.isOnline()) {
 										Player other = (Player) target;
-										other.sendMessage(ChatColor.AQUA + "Deine Einladung in das Bündnis "
-												+ g.getName() + " ist abgelaufen");
+										if (LanguageUtil.getLocale(other) == LanguageUtil.GERMAN) {
+											other.sendMessage(ChatColor.AQUA + "Deine Einladung in das Bündnis "
+													+ g.getName() + " ist abgelaufen");
+										}
+										else{
+											other.sendMessage(ChatColor.AQUA + "Your invitation to the guild "
+													+ g.getName() + " is expired");
+										}
+										
 									}
 									g.removeInvitation(i);
 								}
@@ -55,7 +63,7 @@ public class Guildmanager {
 	public void createNewGuild(String name, Player player) {
 		Guild g = new Guild(name, player);
 		guilds.add(g);
-		File gf = new File(Guildplugin.guildfolder + "/" + name);
+		File gf = new File(Guildplugin.getGuildFolder() + "/" + name);
 		gf.mkdirs();
 		save(g);
 		// Erstelle Guild Welt
@@ -76,7 +84,7 @@ public class Guildmanager {
 	}
 
 	public void loadGuilds() {
-		File base = new File(Guildplugin.guildfolder);
+		File base = new File(Guildplugin.getGuildFolder());
 		if (base.exists()) {
 			for (File file : base.listFiles()) {
 				Guild g = load(file);
@@ -120,7 +128,7 @@ public class Guildmanager {
 	}
 
 	public void save(Guild g) {
-		File f = new File(Guildplugin.guildfolder + "/" + g.getName() + "/main.txt");
+		File f = new File(Guildplugin.getGuildFolder() + "/" + g.getName() + "/main.txt");
 		if (!f.exists()) {
 			try {
 				f.createNewFile();
@@ -141,7 +149,7 @@ public class Guildmanager {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		f = new File(Guildplugin.guildfolder + "/" + g.getName() + "/members.txt");
+		f = new File(Guildplugin.getGuildFolder() + "/" + g.getName() + "/members.txt");
 		if (!f.exists()) {
 			try {
 				f.createNewFile();
@@ -164,7 +172,7 @@ public class Guildmanager {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		f = new File(Guildplugin.guildfolder + "/" + g.getName() + "/ginvites.txt");
+		f = new File(Guildplugin.getGuildFolder() + "/" + g.getName() + "/ginvites.txt");
 		if (!f.exists()) {
 			try {
 				f.createNewFile();
@@ -188,7 +196,7 @@ public class Guildmanager {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		f = new File(Guildplugin.guildfolder + "/" + g.getName() + "/allies.txt");
+		f = new File(Guildplugin.getGuildFolder() + "/" + g.getName() + "/allies.txt");
 		if (!f.exists()) {
 			try {
 				f.createNewFile();
@@ -209,7 +217,7 @@ public class Guildmanager {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		f = new File(Guildplugin.guildfolder + "/" + g.getName() + "/enemies.txt");
+		f = new File(Guildplugin.getGuildFolder() + "/" + g.getName() + "/enemies.txt");
 		if (!f.exists()) {
 			try {
 				f.createNewFile();
@@ -230,7 +238,7 @@ public class Guildmanager {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		f = new File(Guildplugin.guildfolder + "/" + g.getName() + "/naps.txt");
+		f = new File(Guildplugin.getGuildFolder() + "/" + g.getName() + "/naps.txt");
 		if (!f.exists()) {
 			try {
 				f.createNewFile();
@@ -380,7 +388,7 @@ public class Guildmanager {
 	}
 
 	public boolean removeGuild(Guild g) {
-		File gf = new File(Guildplugin.guildfolder + "/" + g.getName() + "/");
+		File gf = new File(Guildplugin.getGuildFolder() + "/" + g.getName() + "/");
 		if (gf.exists()) {
 			for (File f : gf.listFiles()) {
 				f.delete();
