@@ -3,6 +3,7 @@ package Guildclash;
 import java.io.File;
 import java.io.IOException;
 
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -93,6 +94,12 @@ public class Guildplugin extends JavaPlugin {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		if(command.getName().equalsIgnoreCase("portal")){
+			Location xLocation =yggdrasil.getPortalLocationbyIndex(Integer.parseInt(args[0]));
+			p.sendMessage(xLocation.getBlockX()+"");
+			p.sendMessage(xLocation.getBlockY()+"");
+			p.sendMessage(xLocation.getBlockZ()+"");
 		}
 		} else {
 			sender.sendMessage("Du musst ein Spieler sein um diesen Befehl benutzen zu können");

@@ -9,3 +9,4 @@ commands:
         dresciption: Teleportiert dich zum Spawn des Yggdrasil
         aliases: [y]
     paste:
+    portal:
