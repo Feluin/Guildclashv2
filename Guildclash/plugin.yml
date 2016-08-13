@@ -5,3 +5,7 @@ commands:
     guild:
         description: /guild help seite
         aliases: [g]
+    yggdrasil:
+        dresciption: Teleportiert dich zum Spawn des Yggdrasil
+        aliases: [y]
+    paste:

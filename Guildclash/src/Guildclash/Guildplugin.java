@@ -1,15 +1,22 @@
 package Guildclash;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import Guildclash.Commands.Commands;
+import Guildclash.Schematics.Schematic;
+import Guildclash.Schematics.SchematicManager;
+import Guildclash.Yggdrasil.Yggdrasil;
 
 public class Guildplugin extends JavaPlugin {
 	private static Guildmanager guildmanager;
 	private static String guildfolder = "/guilds";;
+	private static Yggdrasil yggdrasil;
 
 	@Override
 	public void onEnable() {
@@ -17,6 +24,8 @@ public class Guildplugin extends JavaPlugin {
 		// Erstelle Manager
 		guildmanager = new Guildmanager();
 		guildmanager.loadGuilds();
+		yggdrasil = new Yggdrasil();
+		
 	}
 
 	@Override
@@ -73,6 +82,18 @@ public class Guildplugin extends JavaPlugin {
 					p.sendMessage("/guild help page");
 				}
 			}
+		if (command.getName().equalsIgnoreCase("Yggdrasil")) {
+			p.teleport(yggdrasil.getWorld().getSpawnLocation());
+		}
+		if (command.getName().equalsIgnoreCase("paste")) {
+			try {
+				Schematic portal= SchematicManager.loadSchematic(new File("C:/Users/Pascal/Desktop/Servers/BuildTools/Server/plugins/WorldEdit/schematics/portal_north_dm.schematic.gz"));
+				SchematicManager.pasteSchematic(p.getWorld(), p.getLocation(), portal);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		} else {
 			sender.sendMessage("Du musst ein Spieler sein um diesen Befehl benutzen zu können");
 		}
