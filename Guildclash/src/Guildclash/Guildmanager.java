@@ -12,10 +12,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.craftbukkit.libs.jline.internal.InputStreamReader;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,12 +30,16 @@ import Guildclash.Objects.GuildMember;
 import Guildclash.Objects.Invitation;
 
 public class Guildmanager {
+
 	private ArrayList<Guild> guilds = new ArrayList<Guild>();
+	private ArrayList<World> worlds = new ArrayList<World>();
 
 	public Guildmanager() {
 		// Erstelle Guild Ordner
 		File gf = new File(Guildplugin.getGuildFolder());
 		gf.mkdirs();
+		File wf = new File(Guildplugin.getWorldFolder());
+		wf.mkdirs();
 		// Aktualisiere Guild Invites
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(JavaPlugin.getPlugin(Guildplugin.class),
 				new Runnable() {
@@ -45,12 +54,10 @@ public class Guildmanager {
 										if (LanguageUtil.getLocale(other) == LanguageUtil.GERMAN) {
 											other.sendMessage(ChatColor.AQUA + "Deine Einladung in das Bündnis "
 													+ g.getName() + " ist abgelaufen");
-										}
-										else{
+										} else {
 											other.sendMessage(ChatColor.AQUA + "Your invitation to the guild "
 													+ g.getName() + " is expired");
 										}
-										
 									}
 									g.removeInvitation(i);
 								}
@@ -60,21 +67,58 @@ public class Guildmanager {
 				}, 0, 20);
 	}
 
-	public void createNewGuild(String name, Player player) {
+	public boolean createNewGuild(String name, Player player) {
+		// Erstelle Guild Welt
+		File gw = new File(Guildplugin.getWorldFolder() + "/" + name);
+		gw.mkdirs();
+		if (!copyWorld(gw)) {
+			if (LanguageUtil.getLocale(player) == LanguageUtil.GERMAN) {
+				player.sendMessage(ChatColor.RED + "Ein Fehler beim erstellen des Bündnisses ist aufgetreten.");
+			} else {
+				player.sendMessage(ChatColor.RED + "An error occured while creating the guild");
+			}
+			Bukkit.getServer().getLogger().log(Level.WARNING,
+					"Ein Fehler beim erstellen der Buendniswelt des Buendnisses " + name + " ist aufgetreten");
+			System.out.println("Fehler beim erstellen");
+			return false;
+		}
+		World w = Bukkit.createWorld(new WorldCreator(name));
+		worlds.add(w);
 		Guild g = new Guild(name, player);
-		guilds.add(g);
 		File gf = new File(Guildplugin.getGuildFolder() + "/" + name);
 		gf.mkdirs();
+		guilds.add(g);
 		save(g);
-		// Erstelle Guild Welt
-		// try {
-		// Files.copy(Guildmanager.getBasicWorld().toPath(),
-		// worldfile.toPath());
-		// } catch (Exception e) {
-		// }
-		// WorldCreator w = new WorldCreator("w");
-		// World world = Bukkit.createWorld(new
-		// WorldCreator(worldfile.getName()));
+		return true;
+	}
+
+	private boolean copyWorld(File gw) {
+		try {
+			ZipInputStream zis = new ZipInputStream(JavaPlugin.getPlugin(Guildplugin.class).getResource("gworld.zip"));
+			ZipEntry ze = zis.getNextEntry();
+			byte[] buffer = new byte[1024];
+			while (ze != null) {
+				String fileName = ze.getName().replaceAll("gworld/", "");
+				File newFile = new File(gw + File.separator + fileName);
+				if (ze.isDirectory()) {
+					newFile.mkdirs();
+				} else {
+					FileOutputStream fos = new FileOutputStream(newFile);
+					int len;
+					while ((len = zis.read(buffer)) > 0) {
+						fos.write(buffer, 0, len);
+					}
+					fos.close();
+				}
+				ze = zis.getNextEntry();
+			}
+			zis.closeEntry();
+			zis.close();
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	public void saveGuilds() {
@@ -99,6 +143,15 @@ public class Guildmanager {
 		for (Guild g : guilds) {
 			if (g.getName().equals(name)) {
 				return g;
+			}
+		}
+		return null;
+	}
+
+	public World getWorldByName(String name) {
+		for (World w : worlds) {
+			if (w.getName().equals(name)) {
+				return w;
 			}
 		}
 		return null;
@@ -393,11 +446,41 @@ public class Guildmanager {
 			for (File f : gf.listFiles()) {
 				f.delete();
 			}
-			if (gf.delete()) {
+			if (!gf.delete()) {
+				return false;
+			} else {
 				guilds.remove(g);
+			}
+		}
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			if (p.getWorld().getName().equals(g.getName())) {
+				p.teleport(Bukkit.getWorld("world").getSpawnLocation());
+			}
+		}
+		Bukkit.getServer().unloadWorld(g.getName(), true);
+		File gw = new File(Guildplugin.getWorldFolder() + "/" + g.getName() + "/");
+		if (gw.exists()) {
+			for (File f : gw.listFiles()) {
+				f.delete();
+			}
+			if (gw.delete()) {
+				worlds.remove(getWorldByName(g.getName()));
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public void loadWorlds() {
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			Guild g = getguildofplayer(p.getUniqueId());
+			if (g != null) {
+				World gw = getWorldByName(g.getName());
+				if (gw == null) {
+					World w = Bukkit.createWorld(new WorldCreator(g.getName()));
+					worlds.add(w);
+				}
+			}
+		}
 	}
 }

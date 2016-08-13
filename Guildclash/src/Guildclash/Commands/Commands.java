@@ -7,7 +7,9 @@ import java.util.UUID;
 import org.apache.commons.lang.time.DateUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import Guildclash.Guild;
@@ -25,13 +27,14 @@ public class Commands {
 			String guildname = args[1];
 			if (!gmanager.hasaguildalready(p.getUniqueId())) {
 				if (!gmanager.existsalready(guildname)) {
-					gmanager.createNewGuild(guildname, p);
-					if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
-						p.sendMessage(ChatColor.AQUA + "Das Bündnis " + ChatColor.GRAY + guildname + ChatColor.AQUA
-								+ " wurde erstellt");
-					} else {
-						p.sendMessage(ChatColor.AQUA + "The guild " + ChatColor.GRAY + guildname + ChatColor.AQUA
-								+ " was succesfully founded");
+					if (gmanager.createNewGuild(guildname, p)) {
+						if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+							p.sendMessage(ChatColor.AQUA + "Das Bündnis " + ChatColor.GRAY + guildname + ChatColor.AQUA
+									+ " wurde erstellt");
+						} else {
+							p.sendMessage(ChatColor.AQUA + "The guild " + ChatColor.GRAY + guildname + ChatColor.AQUA
+									+ " was succesfully founded");
+						}
 					}
 					return true;
 				} else {
@@ -431,13 +434,14 @@ public class Commands {
 						if (op.isOnline()) {
 							Player operator = op.getPlayer();
 							if (LanguageUtil.getLocale(operator) == LanguageUtil.GERMAN) {
-								operator.sendMessage("Ein Fehler beim Löschen von Bündnisdaten ist aufgetreten");
+								operator.sendMessage("Ein Fehler ist beim Löschen von Bündnisdaten aufgetreten");
 							} else {
 								operator.sendMessage("An error occured when deleting guild data");
 							}
-
 						}
 					}
+					Bukkit.getServer().getConsoleSender().sendMessage(
+							"Ein Fehler ist beim loeschen der Daten des Buendnisses " + g.getName() + " aufgetreten");
 				}
 			} else {
 				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
@@ -490,8 +494,30 @@ public class Commands {
 
 	public static boolean doGuildInfoCommand(Player p, String[] args) {
 		Guildmanager gmanager = Guildplugin.getGuildManager();
-		if (gmanager.hasaguildalready(p.getUniqueId())) {
-			Guild g = gmanager.getguildofplayer(p.getUniqueId());
+		Guild g = null;
+		if (args.length > 1) {
+			String name = args[1];
+			g = gmanager.getGuildByName(name);
+			if (g == null) {
+				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+					p.sendMessage("Dieses Bündnis existiert nicht");
+				} else {
+					p.sendMessage("This guild does not exist");
+				}
+			}
+		} else {
+			if (gmanager.hasaguildalready(p.getUniqueId())) {
+				g = gmanager.getguildofplayer(p.getUniqueId());
+
+			} else {
+				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+					p.sendMessage("Du bist in keinem Bündnis");
+				} else {
+					p.sendMessage("You are not in a guild");
+				}
+			}
+		}
+		if (g != null) {
 			ArrayList<UUID> officer = new ArrayList<UUID>();
 			ArrayList<UUID> builder = new ArrayList<UUID>();
 			ArrayList<UUID> member = new ArrayList<UUID>();
@@ -585,6 +611,21 @@ public class Commands {
 			}
 			p.sendMessage(ChatColor.AQUA + "-----------------------------------------------------");
 			return true;
+		}
+		return false;
+	}
+
+	public static boolean doGuildHomeCommand(Player p, String[] args) {
+		Guildmanager gmanager = Guildplugin.getGuildManager();
+		if (gmanager.hasaguildalready(p.getUniqueId())) {
+			Guild g = gmanager.getguildofplayer(p.getUniqueId());
+			World gw = gmanager.getWorldByName(g.getName());
+			if (gw != null) {
+				Location spawn = new Location(gw, -161, 81, -16, 270, 0);
+				p.teleport(spawn);
+			} else {
+				p.sendMessage("Dein Bündnis hat keine eigene Welt");
+			}
 		} else {
 			if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
 				p.sendMessage("Du bist in keinem Bündnis");

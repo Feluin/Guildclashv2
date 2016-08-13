@@ -9,14 +9,19 @@ import Guildclash.Commands.Commands;
 
 public class Guildplugin extends JavaPlugin {
 	private static Guildmanager guildmanager;
-	private static String guildfolder = "/guilds";;
+	private static String mainfolder = "";
+	private static String guildfolder = "/guilds";
+	private static String worldfolder = "/guilds";
 
 	@Override
 	public void onEnable() {
-		guildfolder = getDataFolder() + "/guilds";
+		mainfolder = getDataFolder() + "";
+		guildfolder = mainfolder + "/guilds";
+		worldfolder = mainfolder + "/worlds";
 		// Erstelle Manager
 		guildmanager = new Guildmanager();
 		guildmanager.loadGuilds();
+		guildmanager.loadWorlds();
 	}
 
 	@Override
@@ -62,6 +67,10 @@ public class Guildplugin extends JavaPlugin {
 						if (Commands.doGuildLeaveCommand(p, args)) {
 							return true;
 						}
+					} else if (args[0].equalsIgnoreCase("home")) {
+						if (Commands.doGuildHomeCommand(p, args)) {
+							return true;
+						}
 					} else if (args[0].equalsIgnoreCase("info")) {
 						if (Commands.doGuildInfoCommand(p, args)) {
 							return true;
@@ -83,7 +92,16 @@ public class Guildplugin extends JavaPlugin {
 		return guildfolder;
 	}
 
+	public static String getWorldFolder() {
+		return worldfolder;
+	}
+
 	public static Guildmanager getGuildManager() {
 		return guildmanager;
 	}
+
+	public static String getMainFolder() {
+		return mainfolder;
+	}
+
 }
