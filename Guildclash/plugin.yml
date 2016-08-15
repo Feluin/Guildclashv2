@@ -5,3 +5,5 @@ commands:
     guild:
         description: /guild help seite
         aliases: [g]
+    gchat:
+        description: Writes a message to your guild members

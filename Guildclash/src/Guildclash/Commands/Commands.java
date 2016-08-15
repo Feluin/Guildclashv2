@@ -636,4 +636,26 @@ public class Commands {
 		return false;
 	}
 
+	public static boolean doGuildChatCommand(Player p, String[] args) {
+		Guildmanager gmanager = Guildplugin.getGuildManager();
+		if (gmanager.hasaguildalready(p.getUniqueId())) {
+			if (args.length > 0) {
+				Guild g = gmanager.getguildofplayer(p.getUniqueId());
+				String message = "";
+				for (int i = 0; i < args.length; i++) {
+					message += " "+args[i];
+				}
+				g.broadcastMessage(ChatColor.AQUA + "Guild > " + ChatColor.RESET + p.getDisplayName() + ChatColor.RESET
+						+ ":" + message);
+				return true;
+			}
+		} else {
+			if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+				p.sendMessage("Du bist in keinem Bündnis");
+			} else {
+				p.sendMessage("You are not in a guild");
+			}
+		}
+		return false;
+	}
 }

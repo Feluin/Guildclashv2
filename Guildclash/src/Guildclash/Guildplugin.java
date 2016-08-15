@@ -82,6 +82,11 @@ public class Guildplugin extends JavaPlugin {
 					p.sendMessage("/guild help page");
 				}
 			}
+			else if (command.getName().equalsIgnoreCase("gchat")) {
+				if (Commands.doGuildChatCommand(p, args)) {
+					return true;
+				}
+			}
 		} else {
 			sender.sendMessage("Du musst ein Spieler sein um diesen Befehl benutzen zu können");
 		}
