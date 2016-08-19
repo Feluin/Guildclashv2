@@ -1,17 +1,21 @@
 package Guildclash;
 
+import java.util.ArrayList;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import Guildclash.Commands.Commands;
+import Guildclash.Objects.Confirmation;
 
 public class Guildplugin extends JavaPlugin {
 	private static Guildmanager guildmanager;
 	private static String mainfolder = "";
 	private static String guildfolder = "/guilds";
 	private static String worldfolder = "/guilds";
+	private static ArrayList<Confirmation> confirmations = new ArrayList<Confirmation>();
 
 	@Override
 	public void onEnable() {
@@ -80,6 +84,10 @@ public class Guildplugin extends JavaPlugin {
 						if (Commands.doGuildTagCommand(p, args)) {
 							return true;
 						}
+					} else if (args[0].equalsIgnoreCase("confirm")) {
+						if (Commands.doGuildConfirmCommand(p, args)) {
+							return true;
+						}
 					} else {
 						p.sendMessage("/guild help page");
 					}
@@ -111,6 +119,10 @@ public class Guildplugin extends JavaPlugin {
 
 	public static String getMainFolder() {
 		return mainfolder;
+	}
+
+	public static ArrayList<Confirmation> getConfirmations() {
+		return confirmations;
 	}
 
 }

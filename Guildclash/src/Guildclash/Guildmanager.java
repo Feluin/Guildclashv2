@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import Guildclash.Language.LanguageUtil;
+import Guildclash.Objects.Confirmation;
 import Guildclash.Objects.GuildMember;
 import Guildclash.Objects.Invitation;
 
@@ -33,6 +35,7 @@ public class Guildmanager {
 
 	private ArrayList<Guild> guilds = new ArrayList<Guild>();
 	private ArrayList<World> worlds = new ArrayList<World>();
+	private static final String[] BLOCKED = { "world", "world_nether", "world_the_end" };
 
 	public Guildmanager() {
 		// Erstelle Guild Ordner
@@ -65,6 +68,26 @@ public class Guildmanager {
 						}
 					}
 				}, 0, 20);
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(JavaPlugin.getPlugin(Guildplugin.class),
+				new Runnable() {
+					public void run() {
+						ArrayList<Confirmation> confirmations = Guildplugin.getConfirmations();
+						for (int i = 0; i < confirmations.size(); i++) {
+							Confirmation c = confirmations.get(i);
+							if (c.getRemainingTicks() > 0) {
+								c.setRemainingTicks(c.getRemainingTicks() - 1);
+							} else {
+								if (LanguageUtil.getLocale(c.getPlayer()) == LanguageUtil.GERMAN) {
+									c.getPlayer().sendMessage(ChatColor.AQUA + "Die Bestätigungszeit ist abgelaufen");
+								} else {
+									c.getPlayer().sendMessage(
+											ChatColor.AQUA + "The time to confirm your command is expired");
+								}
+								confirmations.remove(i);
+							}
+						}
+					}
+				}, 0, 1);
 	}
 
 	public boolean createNewGuild(String name, Player player) {
@@ -131,9 +154,11 @@ public class Guildmanager {
 		File base = new File(Guildplugin.getGuildFolder());
 		if (base.exists()) {
 			for (File file : base.listFiles()) {
-				Guild g = load(file);
-				if (g != null) {
-					guilds.add(g);
+				if (file.isDirectory()) {
+					Guild g = load(file);
+					if (g != null) {
+						guilds.add(g);
+					}
 				}
 			}
 		}
@@ -160,6 +185,11 @@ public class Guildmanager {
 	public boolean existsalready(String name) {
 		for (Guild g : guilds) {
 			if (g.getName().equals(name)) {
+				return true;
+			}
+		}
+		for (String s : BLOCKED) {
+			if (s.equals(name)) {
 				return true;
 			}
 		}
@@ -194,8 +224,8 @@ public class Guildmanager {
 			BufferedWriter os = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f.getAbsolutePath())));
 			String s = "{";
 			s += g.getName() + ",";
-			s += g.getOwner() + ",";
-			s += g.getTag() + "";
+			s += g.getTag() + ",";
+			s += g.getOwner() + "";
 			s += "}";
 			os.write(s + "\n");
 			os.flush();
@@ -333,8 +363,8 @@ public class Guildmanager {
 				String[] parts = param.split(",");
 				if (parts.length > 2) {
 					name = parts[0];
-					owner = UUID.fromString(parts[1]);
-					tag = parts[2];
+					tag = parts[1];
+					owner = UUID.fromString(parts[2]);
 				}
 			}
 			is.close();
@@ -462,14 +492,8 @@ public class Guildmanager {
 		}
 		Bukkit.getServer().unloadWorld(g.getName(), true);
 		File gw = new File(Guildplugin.getWorldFolder() + "/" + g.getName() + "/");
-		if (gw.exists()) {
-			for (File f : gw.listFiles()) {
-				f.delete();
-			}
-			if (gw.delete()) {
-				worlds.remove(getWorldByName(g.getName()));
-				return true;
-			}
+		if (delete(gw)) {
+			return true;
 		}
 		return false;
 	}
@@ -494,5 +518,30 @@ public class Guildmanager {
 			}
 		}
 		return false;
+	}
+
+	public boolean delete(File file) {
+		if (file.isDirectory()) {
+			for (File f : file.listFiles()) {
+				if (!delete(f)) {
+					return false;
+				}
+			}
+			try {
+				Files.deleteIfExists(file.toPath());
+				return true;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+		} else {
+			try {
+				Files.deleteIfExists(file.toPath());
+				return true;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
 	}
 }

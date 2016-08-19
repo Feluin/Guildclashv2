@@ -16,6 +16,7 @@ import Guildclash.Guild;
 import Guildclash.Guildmanager;
 import Guildclash.Guildplugin;
 import Guildclash.Language.LanguageUtil;
+import Guildclash.Objects.Confirmation;
 import Guildclash.Objects.GuildMember;
 import Guildclash.Objects.Invitation;
 
@@ -35,8 +36,8 @@ public class Commands {
 							p.sendMessage(ChatColor.AQUA + "The guild " + ChatColor.GRAY + guildname + ChatColor.AQUA
 									+ " was succesfully founded");
 						}
+						return true;
 					}
-					return true;
 				} else {
 					if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
 						p.sendMessage("Dieser Name ist bereits vergeben");
@@ -424,25 +425,14 @@ public class Commands {
 		if (gmanager.hasaguildalready(p.getUniqueId())) {
 			Guild g = gmanager.getguildofplayer(p.getUniqueId());
 			if (g.getPermissionLevel(p.getUniqueId()) == 0) {
-				if (gmanager.removeGuild(g)) {
-					g.broadcastMessage("");
-					g.broadcastSpecialMessage(4, "", 0);
-					g.broadcastMessage("");
-					return true;
+				doCommandConfirmation(p, g, 0, 200);
+				p.sendMessage("");
+				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+					p.sendMessage(ChatColor.RED + "Bitte das Auflösen mit /g confirm bestätigen");
 				} else {
-					for (OfflinePlayer op : Bukkit.getOperators()) {
-						if (op.isOnline()) {
-							Player operator = op.getPlayer();
-							if (LanguageUtil.getLocale(operator) == LanguageUtil.GERMAN) {
-								operator.sendMessage("Ein Fehler ist beim Löschen von Bündnisdaten aufgetreten");
-							} else {
-								operator.sendMessage("An error occured when deleting guild data");
-							}
-						}
-					}
-					Bukkit.getServer().getConsoleSender().sendMessage(
-							"Ein Fehler ist beim loeschen der Daten des Buendnisses " + g.getName() + " aufgetreten");
+					p.sendMessage(ChatColor.RED + "Please confirm that you want to disband the guild with /g confirm");
 				}
+				p.sendMessage("");
 			} else {
 				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
 					p.sendMessage("Deine Rechte reichen dafür nicht aus");
@@ -458,6 +448,18 @@ public class Commands {
 			}
 		}
 		return false;
+	}
+
+	private static void doCommandConfirmation(Player p, Guild g, int type, int durtion) {
+		ArrayList<Confirmation> confirmations = Guildplugin.getConfirmations();
+		for (int i = 0; i < confirmations.size(); i++) {
+			Confirmation c = confirmations.get(i);
+			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+				confirmations.remove(i);
+			}
+		}
+		Confirmation c = new Confirmation(p, g, 0, 200);
+		confirmations.add(c);
 	}
 
 	public static boolean doGuildLeaveCommand(Player p, String[] args) {
@@ -687,10 +689,14 @@ public class Commands {
 							}
 						}
 					} else {
-						if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
-							p.sendMessage("Der Bündnis Tag darf nur maximal 5 Zeichen beinhalten");
+						if (tag.equals("remove")) {
+							g.setTag("");
 						} else {
-							p.sendMessage("The guild tag can only be 5 letters long");
+							if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+								p.sendMessage("Der Bündnis Tag darf nur maximal 5 Zeichen beinhalten");
+							} else {
+								p.sendMessage("The guild tag can only be 5 letters long");
+							}
 						}
 					}
 				} else {
@@ -709,6 +715,42 @@ public class Commands {
 			}
 		} else {
 			p.sendMessage("/guild tag <tag>");
+		}
+		return false;
+	}
+
+	public static boolean doGuildConfirmCommand(Player p, String[] args) {
+		Guildmanager gmanager = Guildplugin.getGuildManager();
+		ArrayList<Confirmation> confirmations = Guildplugin.getConfirmations();
+		for (int i = 0; i < confirmations.size(); i++) {
+			Confirmation c = confirmations.get(i);
+			Guild g = c.getGuild();
+			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+				if (c.getType() == 0) {
+					if (gmanager.removeGuild(g)) {
+						g.broadcastMessage("");
+						g.broadcastSpecialMessage(4, "", 0);
+						g.broadcastMessage("");
+						confirmations.remove(i);
+						return true;
+					} else {
+						for (OfflinePlayer op : Bukkit.getOperators()) {
+							if (op.isOnline()) {
+								Player operator = op.getPlayer();
+								if (LanguageUtil.getLocale(operator) == LanguageUtil.GERMAN) {
+									operator.sendMessage("Ein Fehler ist beim Löschen von Bündnisdaten aufgetreten");
+								} else {
+									operator.sendMessage("An error occured when deleting guild data");
+								}
+							}
+						}
+						Bukkit.getServer().getConsoleSender()
+								.sendMessage("Ein Fehler ist beim loeschen der Daten des Buendnisses " + g.getName()
+										+ " aufgetreten");
+					}
+				}
+				confirmations.remove(i);
+			}
 		}
 		return false;
 	}
