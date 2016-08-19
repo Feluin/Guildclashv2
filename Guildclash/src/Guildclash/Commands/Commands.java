@@ -52,7 +52,7 @@ public class Commands {
 				}
 			}
 		} else {
-			p.sendMessage("/guild create name");
+			p.sendMessage("/guild create <name>");
 		}
 		return false;
 	}
@@ -125,7 +125,7 @@ public class Commands {
 				}
 			}
 		} else {
-			p.sendMessage("/guild kick player");
+			p.sendMessage("/guild kick <player>");
 		}
 		return false;
 	}
@@ -200,7 +200,7 @@ public class Commands {
 				}
 			}
 		} else {
-			p.sendMessage("/guild promote player");
+			p.sendMessage("/guild promote <player>");
 		}
 		return false;
 	}
@@ -283,7 +283,7 @@ public class Commands {
 				}
 			}
 		} else {
-			p.sendMessage("/guild demote player");
+			p.sendMessage("/guild demote <player>");
 		}
 		return false;
 	}
@@ -305,12 +305,12 @@ public class Commands {
 										if (LanguageUtil.getLocale(other) == LanguageUtil.GERMAN) {
 											other.sendMessage(ChatColor.AQUA + "Du wurdest in das Bündnis "
 													+ g.getName() + " eingeladen");
-											other.sendMessage(ChatColor.AQUA + "Schreibe /guild join " + g.getName()
+											other.sendMessage(ChatColor.AQUA + "Schreibe /guild accept " + g.getName()
 													+ " um dem Bündnis beizutreten");
 										} else {
 											other.sendMessage(
 													ChatColor.AQUA + "You were invited to the guild " + g.getName());
-											other.sendMessage(ChatColor.AQUA + "Write /guild join " + g.getName()
+											other.sendMessage(ChatColor.AQUA + "Write /guild accept " + g.getName()
 													+ " to join the guild");
 										}
 									}
@@ -368,7 +368,7 @@ public class Commands {
 				}
 			}
 		} else {
-			p.sendMessage("/guild invite player");
+			p.sendMessage("/guild invite <player>");
 		}
 		return false;
 	}
@@ -414,7 +414,7 @@ public class Commands {
 				}
 			}
 		} else {
-			p.sendMessage("/guild join name");
+			p.sendMessage("/guild join <name>");
 		}
 		return false;
 	}
@@ -548,9 +548,9 @@ public class Commands {
 			p.sendMessage(ChatColor.DARK_BLUE + opowner.getName());
 			if (officer.size() > 0) {
 				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
-					p.sendMessage(ChatColor.GREEN + "                               -- Offiziere --");
+					p.sendMessage(ChatColor.GREEN + "                               -- Leutnants --");
 				} else {
-					p.sendMessage(ChatColor.GREEN + "                               -- Officers --");
+					p.sendMessage(ChatColor.GREEN + "                              -- Lieutenants --");
 				}
 				p.sendMessage("");
 				String line = "";
@@ -609,6 +609,12 @@ public class Commands {
 					p.sendMessage(line);
 				}
 			}
+			p.sendMessage("");
+			if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+				p.sendMessage(ChatColor.YELLOW + "Anzahl Mitglieder: " + (g.getMembers().size() + 1));
+			} else {
+				p.sendMessage(ChatColor.YELLOW + "Total Members: " + (g.getMembers().size() + 1));
+			}
 			p.sendMessage(ChatColor.AQUA + "-----------------------------------------------------");
 			return true;
 		}
@@ -643,11 +649,13 @@ public class Commands {
 				Guild g = gmanager.getguildofplayer(p.getUniqueId());
 				String message = "";
 				for (int i = 0; i < args.length; i++) {
-					message += " "+args[i];
+					message += " " + args[i];
 				}
 				g.broadcastMessage(ChatColor.AQUA + "Guild > " + ChatColor.RESET + p.getDisplayName() + ChatColor.RESET
 						+ ":" + message);
 				return true;
+			} else {
+				p.sendMessage("/gchat <msg>");
 			}
 		} else {
 			if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
@@ -655,6 +663,52 @@ public class Commands {
 			} else {
 				p.sendMessage("You are not in a guild");
 			}
+		}
+		return false;
+	}
+
+	public static boolean doGuildTagCommand(Player p, String[] args) {
+		Guildmanager gmanager = Guildplugin.getGuildManager();
+		if (args.length > 1) {
+			if (gmanager.hasaguildalready(p.getUniqueId())) {
+				Guild g = gmanager.getguildofplayer(p.getUniqueId());
+				if (g.getPermissionLevel(p.getUniqueId()) <= 1) {
+					String tag = args[1];
+					if (tag.length() < 6) {
+						if (!gmanager.tagalreadyused(tag)) {
+							g.setTag(tag);
+							g.broadcastMessage(ChatColor.AQUA + "");
+							return true;
+						} else {
+							if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+								p.sendMessage("Dieser Tag ist bereits in Verwendung");
+							} else {
+								p.sendMessage("This tag is already used");
+							}
+						}
+					} else {
+						if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+							p.sendMessage("Der Bündnis Tag darf nur maximal 5 Zeichen beinhalten");
+						} else {
+							p.sendMessage("The guild tag can only be 5 letters long");
+						}
+					}
+				} else {
+					if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+						p.sendMessage("Deine Rechte reichen dafür nicht aus");
+					} else {
+						p.sendMessage("You do not have permission to do that");
+					}
+				}
+			} else {
+				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+					p.sendMessage("Du bist in keinem Bündnis");
+				} else {
+					p.sendMessage("You are not in a guild");
+				}
+			}
+		} else {
+			p.sendMessage("/guild tag <tag>");
 		}
 		return false;
 	}

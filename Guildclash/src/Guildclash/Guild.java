@@ -18,6 +18,7 @@ public class Guild {
 	private ArrayList<String> allies = new ArrayList<String>();
 	private ArrayList<String> naps = new ArrayList<String>();
 	private ArrayList<String> enemies = new ArrayList<String>();
+	private String tag = "";
 	private UUID owner;
 	private String name;
 
@@ -27,7 +28,7 @@ public class Guild {
 	}
 
 	public Guild(String name, UUID owner, ArrayList<GuildMember> members, ArrayList<String> allies,
-			ArrayList<String> naps, ArrayList<String> enemies, ArrayList<Invitation> ginvites) {
+			ArrayList<String> naps, ArrayList<String> enemies, ArrayList<Invitation> ginvites, String tag) {
 		this.name = name;
 		this.owner = owner;
 		this.members = members;
@@ -35,6 +36,7 @@ public class Guild {
 		this.enemies = enemies;
 		this.naps = naps;
 		this.ginvites = ginvites;
+		this.tag = tag;
 	}
 
 	public String getName() {
@@ -63,6 +65,10 @@ public class Guild {
 
 	public ArrayList<Invitation> getInvitations() {
 		return ginvites;
+	}
+
+	public String getTag() {
+		return tag;
 	}
 
 	public int getPermissionLevel(UUID uuid) {
@@ -110,7 +116,7 @@ public class Guild {
 						} else if (id == 1) {
 							String rang = "Error";
 							if (i == 1) {
-								rang = "Offizier";
+								rang = "Leutnant";
 							} else if (i == 2) {
 								rang = "Bauarbeiter";
 							}
@@ -118,7 +124,7 @@ public class Guild {
 						} else if (id == 2) {
 							String rang = "Error";
 							if (i == 1) {
-								rang = "Offizier";
+								rang = "Leutnant";
 							} else if (i == 2) {
 								rang = "Bauarbeiter";
 							}
@@ -136,7 +142,7 @@ public class Guild {
 						} else if (id == 1) {
 							String rang = "Error";
 							if (i == 1) {
-								rang = "Officer";
+								rang = "Lieutenant";
 							} else if (i == 2) {
 								rang = "Builder";
 							}
@@ -144,7 +150,7 @@ public class Guild {
 						} else if (id == 2) {
 							String rang = "Error";
 							if (i == 1) {
-								rang = "Officer";
+								rang = "Lieutenant";
 							} else if (i == 2) {
 								rang = "Builder";
 							}
@@ -170,7 +176,7 @@ public class Guild {
 					} else if (id == 1) {
 						String rang = "Error";
 						if (i == 1) {
-							rang = "Offizier";
+							rang = "Leutnant";
 						} else if (i == 2) {
 							rang = "Bauarbeiter";
 						}
@@ -178,7 +184,7 @@ public class Guild {
 					} else if (id == 2) {
 						String rang = "Error";
 						if (i == 1) {
-							rang = "Offizier";
+							rang = "Leutnant";
 						} else if (i == 2) {
 							rang = "Bauarbeiter";
 						}
@@ -196,7 +202,7 @@ public class Guild {
 					} else if (id == 1) {
 						String rang = "Error";
 						if (i == 1) {
-							rang = "Officer";
+							rang = "Lieutenant";
 						} else if (i == 2) {
 							rang = "Builder";
 						}
@@ -204,7 +210,7 @@ public class Guild {
 					} else if (id == 2) {
 						String rang = "Error";
 						if (i == 1) {
-							rang = "Officer";
+							rang = "Lieutenant";
 						} else if (i == 2) {
 							rang = "Builder";
 						}
@@ -286,5 +292,9 @@ public class Guild {
 			}
 		}
 		return null;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 }

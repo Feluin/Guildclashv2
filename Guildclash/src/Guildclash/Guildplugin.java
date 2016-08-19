@@ -22,6 +22,7 @@ public class Guildplugin extends JavaPlugin {
 		guildmanager = new Guildmanager();
 		guildmanager.loadGuilds();
 		guildmanager.loadWorlds();
+		this.getServer().getPluginManager().registerEvents(new EventManager(), this);
 	}
 
 	@Override
@@ -55,11 +56,11 @@ public class Guildplugin extends JavaPlugin {
 						if (Commands.doGuildInviteCommand(p, args)) {
 							return true;
 						}
-					} else if (args[0].equalsIgnoreCase("join")) {
+					} else if (args[0].equalsIgnoreCase("accept")) {
 						if (Commands.doGuildJoinCommand(p, args)) {
 							return true;
 						}
-					} else if (args[0].equalsIgnoreCase("delete")) {
+					} else if (args[0].equalsIgnoreCase("disband") || args[0].equalsIgnoreCase("delete")) {
 						if (Commands.doGuildDeleteCommand(p, args)) {
 							return true;
 						}
@@ -71,8 +72,12 @@ public class Guildplugin extends JavaPlugin {
 						if (Commands.doGuildHomeCommand(p, args)) {
 							return true;
 						}
-					} else if (args[0].equalsIgnoreCase("info")) {
+					} else if (args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("members")) {
 						if (Commands.doGuildInfoCommand(p, args)) {
+							return true;
+						}
+					} else if (args[0].equalsIgnoreCase("tag")) {
+						if (Commands.doGuildTagCommand(p, args)) {
 							return true;
 						}
 					} else {
@@ -81,8 +86,7 @@ public class Guildplugin extends JavaPlugin {
 				} else {
 					p.sendMessage("/guild help page");
 				}
-			}
-			else if (command.getName().equalsIgnoreCase("gchat")) {
+			} else if (command.getName().equalsIgnoreCase("gchat")) {
 				if (Commands.doGuildChatCommand(p, args)) {
 					return true;
 				}

@@ -194,7 +194,8 @@ public class Guildmanager {
 			BufferedWriter os = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f.getAbsolutePath())));
 			String s = "{";
 			s += g.getName() + ",";
-			s += g.getOwner() + "";
+			s += g.getOwner() + ",";
+			s += g.getTag() + "";
 			s += "}";
 			os.write(s + "\n");
 			os.flush();
@@ -317,6 +318,7 @@ public class Guildmanager {
 	private Guild load(File file) {
 		String name = "";
 		UUID owner = null;
+		String tag = "";
 		ArrayList<GuildMember> members;
 		ArrayList<String> allies;
 		ArrayList<String> naps;
@@ -329,9 +331,10 @@ public class Guildmanager {
 				String param = is.readLine();
 				param = param.substring(1, param.length() - 1);
 				String[] parts = param.split(",");
-				if (parts.length > 1) {
+				if (parts.length > 2) {
 					name = parts[0];
 					owner = UUID.fromString(parts[1]);
+					tag = parts[2];
 				}
 			}
 			is.close();
@@ -422,7 +425,7 @@ public class Guildmanager {
 			e.printStackTrace();
 			return null;
 		}
-		Guild ret = new Guild(name, owner, members, allies, naps, enemies, ginvites);
+		Guild ret = new Guild(name, owner, members, allies, naps, enemies, ginvites, tag);
 		return ret;
 	}
 
@@ -482,5 +485,14 @@ public class Guildmanager {
 				}
 			}
 		}
+	}
+
+	public boolean tagalreadyused(String tag) {
+		for (Guild g : guilds) {
+			if (g.getTag().equals(tag)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
