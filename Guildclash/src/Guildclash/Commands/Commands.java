@@ -7,13 +7,16 @@ import java.util.UUID;
 import org.apache.commons.lang.time.DateUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import Guildclash.Guild;
 import Guildclash.Guildmanager;
 import Guildclash.Guildplugin;
 import Guildclash.Language.LanguageUtil;
+import Guildclash.Objects.Confirmation;
 import Guildclash.Objects.GuildMember;
 import Guildclash.Objects.Invitation;
 
@@ -25,15 +28,16 @@ public class Commands {
 			String guildname = args[1];
 			if (!gmanager.hasaguildalready(p.getUniqueId())) {
 				if (!gmanager.existsalready(guildname)) {
-					gmanager.createNewGuild(guildname, p);
-					if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
-						p.sendMessage(ChatColor.AQUA + "Das Bündnis " + ChatColor.GRAY + guildname + ChatColor.AQUA
-								+ " wurde erstellt");
-					} else {
-						p.sendMessage(ChatColor.AQUA + "The guild " + ChatColor.GRAY + guildname + ChatColor.AQUA
-								+ " was succesfully founded");
+					if (gmanager.createNewGuild(guildname, p)) {
+						if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+							p.sendMessage(ChatColor.AQUA + "Das Bündnis " + ChatColor.GRAY + guildname + ChatColor.AQUA
+									+ " wurde erstellt");
+						} else {
+							p.sendMessage(ChatColor.AQUA + "The guild " + ChatColor.GRAY + guildname + ChatColor.AQUA
+									+ " was succesfully founded");
+						}
+						return true;
 					}
-					return true;
 				} else {
 					if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
 						p.sendMessage("Dieser Name ist bereits vergeben");
@@ -49,7 +53,7 @@ public class Commands {
 				}
 			}
 		} else {
-			p.sendMessage("/guild create name");
+			p.sendMessage("/guild create <name>");
 		}
 		return false;
 	}
@@ -122,7 +126,7 @@ public class Commands {
 				}
 			}
 		} else {
-			p.sendMessage("/guild kick player");
+			p.sendMessage("/guild kick <player>");
 		}
 		return false;
 	}
@@ -197,7 +201,7 @@ public class Commands {
 				}
 			}
 		} else {
-			p.sendMessage("/guild promote player");
+			p.sendMessage("/guild promote <player>");
 		}
 		return false;
 	}
@@ -280,7 +284,7 @@ public class Commands {
 				}
 			}
 		} else {
-			p.sendMessage("/guild demote player");
+			p.sendMessage("/guild demote <player>");
 		}
 		return false;
 	}
@@ -302,12 +306,12 @@ public class Commands {
 										if (LanguageUtil.getLocale(other) == LanguageUtil.GERMAN) {
 											other.sendMessage(ChatColor.AQUA + "Du wurdest in das Bündnis "
 													+ g.getName() + " eingeladen");
-											other.sendMessage(ChatColor.AQUA + "Schreibe /guild join " + g.getName()
+											other.sendMessage(ChatColor.AQUA + "Schreibe /guild accept " + g.getName()
 													+ " um dem Bündnis beizutreten");
 										} else {
 											other.sendMessage(
 													ChatColor.AQUA + "You were invited to the guild " + g.getName());
-											other.sendMessage(ChatColor.AQUA + "Write /guild join " + g.getName()
+											other.sendMessage(ChatColor.AQUA + "Write /guild accept " + g.getName()
 													+ " to join the guild");
 										}
 									}
@@ -365,7 +369,7 @@ public class Commands {
 				}
 			}
 		} else {
-			p.sendMessage("/guild invite player");
+			p.sendMessage("/guild invite <player>");
 		}
 		return false;
 	}
@@ -411,7 +415,7 @@ public class Commands {
 				}
 			}
 		} else {
-			p.sendMessage("/guild join name");
+			p.sendMessage("/guild join <name>");
 		}
 		return false;
 	}
@@ -421,24 +425,14 @@ public class Commands {
 		if (gmanager.hasaguildalready(p.getUniqueId())) {
 			Guild g = gmanager.getguildofplayer(p.getUniqueId());
 			if (g.getPermissionLevel(p.getUniqueId()) == 0) {
-				if (gmanager.removeGuild(g)) {
-					g.broadcastMessage("");
-					g.broadcastSpecialMessage(4, "", 0);
-					g.broadcastMessage("");
-					return true;
+				doCommandConfirmation(p, g, args, 200);
+				p.sendMessage("");
+				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+					p.sendMessage(ChatColor.RED + "Bitte das Auflösen mit /g confirm bestätigen");
 				} else {
-					for (OfflinePlayer op : Bukkit.getOperators()) {
-						if (op.isOnline()) {
-							Player operator = op.getPlayer();
-							if (LanguageUtil.getLocale(operator) == LanguageUtil.GERMAN) {
-								operator.sendMessage("Ein Fehler beim Löschen von Bündnisdaten ist aufgetreten");
-							} else {
-								operator.sendMessage("An error occured when deleting guild data");
-							}
-
-						}
-					}
+					p.sendMessage(ChatColor.RED + "Please confirm that you want to disband the guild with /g confirm");
 				}
+				p.sendMessage("");
 			} else {
 				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
 					p.sendMessage("Deine Rechte reichen dafür nicht aus");
@@ -490,8 +484,30 @@ public class Commands {
 
 	public static boolean doGuildInfoCommand(Player p, String[] args) {
 		Guildmanager gmanager = Guildplugin.getGuildManager();
-		if (gmanager.hasaguildalready(p.getUniqueId())) {
-			Guild g = gmanager.getguildofplayer(p.getUniqueId());
+		Guild g = null;
+		if (args.length > 1) {
+			String name = args[1];
+			g = gmanager.getGuildByName(name);
+			if (g == null) {
+				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+					p.sendMessage("Dieses Bündnis existiert nicht");
+				} else {
+					p.sendMessage("This guild does not exist");
+				}
+			}
+		} else {
+			if (gmanager.hasaguildalready(p.getUniqueId())) {
+				g = gmanager.getguildofplayer(p.getUniqueId());
+
+			} else {
+				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+					p.sendMessage("Du bist in keinem Bündnis");
+				} else {
+					p.sendMessage("You are not in a guild");
+				}
+			}
+		}
+		if (g != null) {
 			ArrayList<UUID> officer = new ArrayList<UUID>();
 			ArrayList<UUID> builder = new ArrayList<UUID>();
 			ArrayList<UUID> member = new ArrayList<UUID>();
@@ -522,9 +538,9 @@ public class Commands {
 			p.sendMessage(ChatColor.DARK_BLUE + opowner.getName());
 			if (officer.size() > 0) {
 				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
-					p.sendMessage(ChatColor.GREEN + "                               -- Offiziere --");
+					p.sendMessage(ChatColor.GREEN + "                               -- Leutnants --");
 				} else {
-					p.sendMessage(ChatColor.GREEN + "                               -- Officers --");
+					p.sendMessage(ChatColor.GREEN + "                              -- Lieutenants --");
 				}
 				p.sendMessage("");
 				String line = "";
@@ -583,8 +599,29 @@ public class Commands {
 					p.sendMessage(line);
 				}
 			}
+			p.sendMessage("");
+			if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+				p.sendMessage(ChatColor.YELLOW + "Anzahl Mitglieder: " + (g.getMembers().size() + 1));
+			} else {
+				p.sendMessage(ChatColor.YELLOW + "Total Members: " + (g.getMembers().size() + 1));
+			}
 			p.sendMessage(ChatColor.AQUA + "-----------------------------------------------------");
 			return true;
+		}
+		return false;
+	}
+
+	public static boolean doGuildHomeCommand(Player p, String[] args) {
+		Guildmanager gmanager = Guildplugin.getGuildManager();
+		if (gmanager.hasaguildalready(p.getUniqueId())) {
+			Guild g = gmanager.getguildofplayer(p.getUniqueId());
+			World gw = gmanager.getWorldByName(g.getName());
+			if (gw != null) {
+				Location spawn = new Location(gw, -161, 81, -16, 270, 0);
+				p.teleport(spawn);
+			} else {
+				p.sendMessage("Dein Bündnis hat keine eigene Welt");
+			}
 		} else {
 			if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
 				p.sendMessage("Du bist in keinem Bündnis");
@@ -593,6 +630,200 @@ public class Commands {
 			}
 		}
 		return false;
+	}
+
+	public static boolean doGuildChatCommand(Player p, String[] args) {
+		Guildmanager gmanager = Guildplugin.getGuildManager();
+		if (gmanager.hasaguildalready(p.getUniqueId())) {
+			if (args.length > 0) {
+				Guild g = gmanager.getguildofplayer(p.getUniqueId());
+				String message = "";
+				for (int i = 0; i < args.length; i++) {
+					message += " " + args[i];
+				}
+				g.broadcastMessage(ChatColor.AQUA + "Guild > " + ChatColor.RESET + p.getDisplayName() + ChatColor.RESET
+						+ ":" + message);
+				return true;
+			} else {
+				p.sendMessage("/gchat <msg>");
+			}
+		} else {
+			if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+				p.sendMessage("Du bist in keinem Bündnis");
+			} else {
+				p.sendMessage("You are not in a guild");
+			}
+		}
+		return false;
+	}
+
+	public static boolean doGuildTagCommand(Player p, String[] args) {
+		Guildmanager gmanager = Guildplugin.getGuildManager();
+		if (args.length > 1) {
+			if (gmanager.hasaguildalready(p.getUniqueId())) {
+				Guild g = gmanager.getguildofplayer(p.getUniqueId());
+				if (g.getPermissionLevel(p.getUniqueId()) <= 1) {
+					String tag = args[1];
+					if (tag.length() < 6) {
+						if (!gmanager.tagalreadyused(tag)) {
+							g.setTag(tag);
+							g.broadcastMessage(ChatColor.AQUA + "");
+							return true;
+						} else {
+							if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+								p.sendMessage("Dieser Tag ist bereits in Verwendung");
+							} else {
+								p.sendMessage("This tag is already used");
+							}
+						}
+					} else {
+						if (tag.equals("remove")) {
+							g.setTag("");
+						} else {
+							if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+								p.sendMessage("Der Bündnis Tag darf nur maximal 5 Zeichen beinhalten");
+							} else {
+								p.sendMessage("The guild tag can only be 5 letters long");
+							}
+						}
+					}
+				} else {
+					if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+						p.sendMessage("Deine Rechte reichen dafür nicht aus");
+					} else {
+						p.sendMessage("You do not have permission to do that");
+					}
+				}
+			} else {
+				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+					p.sendMessage("Du bist in keinem Bündnis");
+				} else {
+					p.sendMessage("You are not in a guild");
+				}
+			}
+		} else {
+			p.sendMessage("/guild tag <tag>");
+		}
+		return false;
+	}
+
+	@SuppressWarnings("deprecation")
+	public static boolean doGuildConfirmCommand(Player p) {
+		Guildmanager gmanager = Guildplugin.getGuildManager();
+		ArrayList<Confirmation> confirmations = Guildplugin.getConfirmations();
+		for (int i = 0; i < confirmations.size(); i++) {
+			Confirmation c = confirmations.get(i);
+			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+				Guild g = c.getGuild();
+				String[] args = c.getArgs();
+				if (args[0].equals("disband") || args[0].equals("delete")) {
+					if (gmanager.removeGuild(g)) {
+						g.broadcastMessage("");
+						g.broadcastSpecialMessage(4, "", 0);
+						g.broadcastMessage("");
+						confirmations.remove(i);
+						return true;
+					} else {
+						for (OfflinePlayer op : Bukkit.getOperators()) {
+							if (op.isOnline()) {
+								Player operator = op.getPlayer();
+								if (LanguageUtil.getLocale(operator) == LanguageUtil.GERMAN) {
+									operator.sendMessage("Ein Fehler ist beim Löschen von Bündnisdaten aufgetreten");
+								} else {
+									operator.sendMessage("An error occured when deleting guild data");
+								}
+							}
+						}
+						Bukkit.getServer().getConsoleSender()
+								.sendMessage("Ein Fehler ist beim loeschen der Daten des Buendnisses " + g.getName()
+										+ " aufgetreten");
+					}
+				} else if (args[0].equals("transfer")) {
+					OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
+					UUID owner = g.getOwner();
+					g.setOwner(target.getUniqueId());
+					g.getMembers().add(new GuildMember(owner, 1));
+					g.broadcastMessage("");
+					g.broadcastSpecialMessage(6, p.getName(), 0);
+					g.broadcastMessage("");
+				}
+				confirmations.remove(i);
+			}
+		}
+		return false;
+	}
+
+	@SuppressWarnings("deprecation")
+	public static boolean doGuildTransferCommand(Player p, String[] args) {
+		Guildmanager gmanager = Guildplugin.getGuildManager();
+		if (args.length > 1) {
+			if (gmanager.hasaguildalready(p.getUniqueId())) {
+				Guild g = gmanager.getguildofplayer(p.getUniqueId());
+				if (g.getPermissionLevel(p.getUniqueId()) == 0) {
+					OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(args[1]);
+					if (target != null) {
+						if (target.getUniqueId().compareTo(p.getUniqueId()) != 0) {
+							if (g.hasPlayer(target.getUniqueId())) {
+								doCommandConfirmation(p, g, args, 200);
+								p.sendMessage("");
+								if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+									p.sendMessage(ChatColor.RED + "Bitte das Übertragen mit /g confirm bestätigen");
+								} else {
+									p.sendMessage(ChatColor.RED
+											+ "Please confirm that you want to transfer the guild with /g confirm");
+								}
+								p.sendMessage("");
+							} else {
+								if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+									p.sendMessage("Dieser Spieler ist nicht im gleichem Bündnis");
+								} else {
+									p.sendMessage("This player is not in your guild");
+								}
+							}
+						} else {
+							if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+								p.sendMessage("Du kannst dein Bündnis nicht auf dich selbst übertragen");
+							} else {
+								p.sendMessage("You can not transfer your guild to yourself");
+							}
+						}
+					} else {
+						if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+							p.sendMessage("Dieser Spieler existiert nicht");
+						} else {
+							p.sendMessage("This player does not exist");
+						}
+					}
+				} else {
+					if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+						p.sendMessage("Deine Rechte reichen dafür nicht aus");
+					} else {
+						p.sendMessage("You do not have permission to do that");
+					}
+				}
+			} else {
+				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+					p.sendMessage("Du bist in keinem Bündnis");
+				} else {
+					p.sendMessage("You are not in a guild");
+				}
+			}
+		} else {
+			p.sendMessage("/guild transfer <player>");
+		}
+		return false;
+	}
+
+	private static void doCommandConfirmation(Player p, Guild g, String[] args, int durtion) {
+		ArrayList<Confirmation> confirmations = Guildplugin.getConfirmations();
+		for (int i = 0; i < confirmations.size(); i++) {
+			Confirmation c = confirmations.get(i);
+			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+				confirmations.remove(i);
+			}
+		}
+		Confirmation c = new Confirmation(p, g, args, 200);
+		confirmations.add(c);
 	}
 
 }

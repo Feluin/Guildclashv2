@@ -18,6 +18,7 @@ public class Guild {
 	private ArrayList<String> allies = new ArrayList<String>();
 	private ArrayList<String> naps = new ArrayList<String>();
 	private ArrayList<String> enemies = new ArrayList<String>();
+	private String tag = "";
 	private UUID owner;
 	private String name;
 
@@ -27,7 +28,7 @@ public class Guild {
 	}
 
 	public Guild(String name, UUID owner, ArrayList<GuildMember> members, ArrayList<String> allies,
-			ArrayList<String> naps, ArrayList<String> enemies, ArrayList<Invitation> ginvites) {
+			ArrayList<String> naps, ArrayList<String> enemies, ArrayList<Invitation> ginvites, String tag) {
 		this.name = name;
 		this.owner = owner;
 		this.members = members;
@@ -35,6 +36,7 @@ public class Guild {
 		this.enemies = enemies;
 		this.naps = naps;
 		this.ginvites = ginvites;
+		this.tag = tag;
 	}
 
 	public String getName() {
@@ -63,6 +65,10 @@ public class Guild {
 
 	public ArrayList<Invitation> getInvitations() {
 		return ginvites;
+	}
+
+	public String getTag() {
+		return tag;
 	}
 
 	public int getPermissionLevel(UUID uuid) {
@@ -110,7 +116,7 @@ public class Guild {
 						} else if (id == 1) {
 							String rang = "Error";
 							if (i == 1) {
-								rang = "Offizier";
+								rang = "Leutnant";
 							} else if (i == 2) {
 								rang = "Bauarbeiter";
 							}
@@ -118,7 +124,7 @@ public class Guild {
 						} else if (id == 2) {
 							String rang = "Error";
 							if (i == 1) {
-								rang = "Offizier";
+								rang = "Leutnant";
 							} else if (i == 2) {
 								rang = "Bauarbeiter";
 							}
@@ -129,6 +135,10 @@ public class Guild {
 							p.sendMessage(ChatColor.DARK_RED + "Das Bündnis wurde aufgelöst");
 						} else if (id == 5) {
 							p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " hat das Bündnis verlassen");
+						} else if (id == 6) {
+							OfflinePlayer opowner = Bukkit.getOfflinePlayer(owner);
+							p.sendMessage(ChatColor.DARK_BLUE + s + ChatColor.AQUA + " übertrug das Bündnis auf "
+									+ ChatColor.GRAY + opowner.getName());
 						}
 					} else {
 						if (id == 0) {
@@ -136,7 +146,7 @@ public class Guild {
 						} else if (id == 1) {
 							String rang = "Error";
 							if (i == 1) {
-								rang = "Officer";
+								rang = "Lieutenant";
 							} else if (i == 2) {
 								rang = "Builder";
 							}
@@ -144,7 +154,7 @@ public class Guild {
 						} else if (id == 2) {
 							String rang = "Error";
 							if (i == 1) {
-								rang = "Officer";
+								rang = "Lieutenant";
 							} else if (i == 2) {
 								rang = "Builder";
 							}
@@ -155,6 +165,10 @@ public class Guild {
 							p.sendMessage(ChatColor.DARK_RED + "The guild was disbanded");
 						} else if (id == 5) {
 							p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " left the guild");
+						} else if (id == 6) {
+							OfflinePlayer opowner = Bukkit.getOfflinePlayer(owner);
+							p.sendMessage(ChatColor.DARK_BLUE + s + ChatColor.AQUA + " transferred the guild to "
+									+ ChatColor.GRAY + opowner.getName());
 						}
 					}
 				}
@@ -170,7 +184,7 @@ public class Guild {
 					} else if (id == 1) {
 						String rang = "Error";
 						if (i == 1) {
-							rang = "Offizier";
+							rang = "Leutnant";
 						} else if (i == 2) {
 							rang = "Bauarbeiter";
 						}
@@ -178,7 +192,7 @@ public class Guild {
 					} else if (id == 2) {
 						String rang = "Error";
 						if (i == 1) {
-							rang = "Offizier";
+							rang = "Leutnant";
 						} else if (i == 2) {
 							rang = "Bauarbeiter";
 						}
@@ -189,6 +203,10 @@ public class Guild {
 						p.sendMessage(ChatColor.DARK_RED + "Das Bündnis wurde aufgelöst");
 					} else if (id == 5) {
 						p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " hat das Bündnis verlassen");
+					} else if (id == 6) {
+						OfflinePlayer opowner = Bukkit.getOfflinePlayer(owner);
+						p.sendMessage(ChatColor.DARK_BLUE + s + ChatColor.AQUA + " übertrug das Bündnis auf "
+								+ ChatColor.GRAY + opowner.getName());
 					}
 				} else {
 					if (id == 0) {
@@ -196,7 +214,7 @@ public class Guild {
 					} else if (id == 1) {
 						String rang = "Error";
 						if (i == 1) {
-							rang = "Officer";
+							rang = "Lieutenant";
 						} else if (i == 2) {
 							rang = "Builder";
 						}
@@ -204,7 +222,7 @@ public class Guild {
 					} else if (id == 2) {
 						String rang = "Error";
 						if (i == 1) {
-							rang = "Officer";
+							rang = "Lieutenant";
 						} else if (i == 2) {
 							rang = "Builder";
 						}
@@ -215,6 +233,10 @@ public class Guild {
 						p.sendMessage(ChatColor.DARK_RED + "The guild was disbanded");
 					} else if (id == 5) {
 						p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " left the guild");
+					} else if (id == 6) {
+						OfflinePlayer opowner = Bukkit.getOfflinePlayer(owner);
+						p.sendMessage(ChatColor.DARK_BLUE + s + ChatColor.AQUA + " transferred the guild to "
+								+ ChatColor.GRAY + opowner.getName());
 					}
 				}
 			}
@@ -286,5 +308,13 @@ public class Guild {
 			}
 		}
 		return null;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
+	}
+
+	public void setOwner(UUID uuid) {
+		owner = uuid;
 	}
 }
