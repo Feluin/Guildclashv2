@@ -7,13 +7,13 @@ import Guildclash.Guild;
 public class Confirmation {
 	private Player p;
 	private Guild g;
-	private int type;
+	private String[] args;
 	private int remainingticks;
 
-	public Confirmation(Player p, Guild g, int type, int confirmationtime) {
+	public Confirmation(Player p, Guild g, String[] args, int confirmationtime) {
 		this.p = p;
-		this.type = type;
 		this.g = g;
+		this.args = args;
 		this.remainingticks = confirmationtime;
 	}
 
@@ -21,8 +21,8 @@ public class Confirmation {
 		return g;
 	}
 
-	public int getType() {
-		return type;
+	public String[] getArgs() {
+		return args;
 	}
 
 	public Player getPlayer() {

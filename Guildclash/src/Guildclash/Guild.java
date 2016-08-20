@@ -135,6 +135,10 @@ public class Guild {
 							p.sendMessage(ChatColor.DARK_RED + "Das Bündnis wurde aufgelöst");
 						} else if (id == 5) {
 							p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " hat das Bündnis verlassen");
+						} else if (id == 6) {
+							OfflinePlayer opowner = Bukkit.getOfflinePlayer(owner);
+							p.sendMessage(ChatColor.DARK_BLUE + s + ChatColor.AQUA + " übertrug das Bündnis auf "
+									+ ChatColor.GRAY + opowner.getName());
 						}
 					} else {
 						if (id == 0) {
@@ -161,6 +165,10 @@ public class Guild {
 							p.sendMessage(ChatColor.DARK_RED + "The guild was disbanded");
 						} else if (id == 5) {
 							p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " left the guild");
+						} else if (id == 6) {
+							OfflinePlayer opowner = Bukkit.getOfflinePlayer(owner);
+							p.sendMessage(ChatColor.DARK_BLUE + s + ChatColor.AQUA + " transferred the guild to "
+									+ ChatColor.GRAY + opowner.getName());
 						}
 					}
 				}
@@ -195,6 +203,10 @@ public class Guild {
 						p.sendMessage(ChatColor.DARK_RED + "Das Bündnis wurde aufgelöst");
 					} else if (id == 5) {
 						p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " hat das Bündnis verlassen");
+					} else if (id == 6) {
+						OfflinePlayer opowner = Bukkit.getOfflinePlayer(owner);
+						p.sendMessage(ChatColor.DARK_BLUE + s + ChatColor.AQUA + " übertrug das Bündnis auf "
+								+ ChatColor.GRAY + opowner.getName());
 					}
 				} else {
 					if (id == 0) {
@@ -221,6 +233,10 @@ public class Guild {
 						p.sendMessage(ChatColor.DARK_RED + "The guild was disbanded");
 					} else if (id == 5) {
 						p.sendMessage(ChatColor.GRAY + s + ChatColor.AQUA + " left the guild");
+					} else if (id == 6) {
+						OfflinePlayer opowner = Bukkit.getOfflinePlayer(owner);
+						p.sendMessage(ChatColor.DARK_BLUE + s + ChatColor.AQUA + " transferred the guild to "
+								+ ChatColor.GRAY + opowner.getName());
 					}
 				}
 			}
@@ -296,5 +312,9 @@ public class Guild {
 
 	public void setTag(String tag) {
 		this.tag = tag;
+	}
+
+	public void setOwner(UUID uuid) {
+		owner = uuid;
 	}
 }

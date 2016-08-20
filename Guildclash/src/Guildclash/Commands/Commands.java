@@ -425,7 +425,7 @@ public class Commands {
 		if (gmanager.hasaguildalready(p.getUniqueId())) {
 			Guild g = gmanager.getguildofplayer(p.getUniqueId());
 			if (g.getPermissionLevel(p.getUniqueId()) == 0) {
-				doCommandConfirmation(p, g, 0, 200);
+				doCommandConfirmation(p, g, args, 200);
 				p.sendMessage("");
 				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
 					p.sendMessage(ChatColor.RED + "Bitte das Auflösen mit /g confirm bestätigen");
@@ -448,18 +448,6 @@ public class Commands {
 			}
 		}
 		return false;
-	}
-
-	private static void doCommandConfirmation(Player p, Guild g, int type, int durtion) {
-		ArrayList<Confirmation> confirmations = Guildplugin.getConfirmations();
-		for (int i = 0; i < confirmations.size(); i++) {
-			Confirmation c = confirmations.get(i);
-			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
-				confirmations.remove(i);
-			}
-		}
-		Confirmation c = new Confirmation(p, g, 0, 200);
-		confirmations.add(c);
 	}
 
 	public static boolean doGuildLeaveCommand(Player p, String[] args) {
@@ -719,14 +707,16 @@ public class Commands {
 		return false;
 	}
 
-	public static boolean doGuildConfirmCommand(Player p, String[] args) {
+	@SuppressWarnings("deprecation")
+	public static boolean doGuildConfirmCommand(Player p) {
 		Guildmanager gmanager = Guildplugin.getGuildManager();
 		ArrayList<Confirmation> confirmations = Guildplugin.getConfirmations();
 		for (int i = 0; i < confirmations.size(); i++) {
 			Confirmation c = confirmations.get(i);
-			Guild g = c.getGuild();
 			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
-				if (c.getType() == 0) {
+				Guild g = c.getGuild();
+				String[] args = c.getArgs();
+				if (args[0].equals("disband") || args[0].equals("delete")) {
 					if (gmanager.removeGuild(g)) {
 						g.broadcastMessage("");
 						g.broadcastSpecialMessage(4, "", 0);
@@ -748,10 +738,92 @@ public class Commands {
 								.sendMessage("Ein Fehler ist beim loeschen der Daten des Buendnisses " + g.getName()
 										+ " aufgetreten");
 					}
+				} else if (args[0].equals("transfer")) {
+					OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
+					UUID owner = g.getOwner();
+					g.setOwner(target.getUniqueId());
+					g.getMembers().add(new GuildMember(owner, 1));
+					g.broadcastMessage("");
+					g.broadcastSpecialMessage(6, p.getName(), 0);
+					g.broadcastMessage("");
 				}
 				confirmations.remove(i);
 			}
 		}
 		return false;
 	}
+
+	@SuppressWarnings("deprecation")
+	public static boolean doGuildTransferCommand(Player p, String[] args) {
+		Guildmanager gmanager = Guildplugin.getGuildManager();
+		if (args.length > 1) {
+			if (gmanager.hasaguildalready(p.getUniqueId())) {
+				Guild g = gmanager.getguildofplayer(p.getUniqueId());
+				if (g.getPermissionLevel(p.getUniqueId()) == 0) {
+					OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(args[1]);
+					if (target != null) {
+						if (target.getUniqueId().compareTo(p.getUniqueId()) != 0) {
+							if (g.hasPlayer(target.getUniqueId())) {
+								doCommandConfirmation(p, g, args, 200);
+								p.sendMessage("");
+								if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+									p.sendMessage(ChatColor.RED + "Bitte das Übertragen mit /g confirm bestätigen");
+								} else {
+									p.sendMessage(ChatColor.RED
+											+ "Please confirm that you want to transfer the guild with /g confirm");
+								}
+								p.sendMessage("");
+							} else {
+								if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+									p.sendMessage("Dieser Spieler ist nicht im gleichem Bündnis");
+								} else {
+									p.sendMessage("This player is not in your guild");
+								}
+							}
+						} else {
+							if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+								p.sendMessage("Du kannst dein Bündnis nicht auf dich selbst übertragen");
+							} else {
+								p.sendMessage("You can not transfer your guild to yourself");
+							}
+						}
+					} else {
+						if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+							p.sendMessage("Dieser Spieler existiert nicht");
+						} else {
+							p.sendMessage("This player does not exist");
+						}
+					}
+				} else {
+					if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+						p.sendMessage("Deine Rechte reichen dafür nicht aus");
+					} else {
+						p.sendMessage("You do not have permission to do that");
+					}
+				}
+			} else {
+				if (LanguageUtil.getLocale(p) == LanguageUtil.GERMAN) {
+					p.sendMessage("Du bist in keinem Bündnis");
+				} else {
+					p.sendMessage("You are not in a guild");
+				}
+			}
+		} else {
+			p.sendMessage("/guild transfer <player>");
+		}
+		return false;
+	}
+
+	private static void doCommandConfirmation(Player p, Guild g, String[] args, int durtion) {
+		ArrayList<Confirmation> confirmations = Guildplugin.getConfirmations();
+		for (int i = 0; i < confirmations.size(); i++) {
+			Confirmation c = confirmations.get(i);
+			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+				confirmations.remove(i);
+			}
+		}
+		Confirmation c = new Confirmation(p, g, args, 200);
+		confirmations.add(c);
+	}
+
 }

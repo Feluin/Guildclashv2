@@ -85,7 +85,11 @@ public class Guildplugin extends JavaPlugin {
 							return true;
 						}
 					} else if (args[0].equalsIgnoreCase("confirm")) {
-						if (Commands.doGuildConfirmCommand(p, args)) {
+						if (Commands.doGuildConfirmCommand(p)) {
+							return true;
+						}
+					} else if (args[0].equalsIgnoreCase("transfer")) {
+						if (Commands.doGuildTransferCommand(p, args)) {
 							return true;
 						}
 					} else {
